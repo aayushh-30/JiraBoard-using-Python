@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}503 - Service Unavailable{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-card dhaniya-card card">
+        <div class="card-header dhaniya-bg text-white text-center">
+            <h2>🔧 Service Unavailable</h2>
+        </div>
+        <div class="card-body text-center">
+            <div class="error-code mb-4">
+                <h1 class="display-1 text-muted">503</h1>
+            </div>
+            <h3 class="mb-3">Our garden is temporarily closed for maintenance!</h3>
+            <p class="lead mb-4">The service is temporarily unavailable due to maintenance or high load. Please try again in a few minutes.</p>
+            
+            <div class="error-actions">
+                <a href="/dashboard" class="btn dhaniya-bg text-white btn-lg me-3">
+                    <i class="fas fa-home"></i> Go to Dashboard
+                </a>
+                <a href="javascript:location.reload()" class="btn btn-outline-success btn-lg">
+                    <i class="fas fa-sync-alt"></i> Try Again
+                </a>
+            </div>
+            
+            <div class="mt-4">
+                <small class="text-muted">
+                    🌿 <em>Even the best gardens need regular care and maintenance!</em>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Create Ticket - Dhaniya{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+<div id="sidebar-wrapper" class="bg-light border-end sidebar">
+    <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="/dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="list-group-item list-group-item-action" href="/projects">
+            <i class="fas fa-project-diagram"></i> Projects
+        </a>
+        <a class="list-group-item list-group-item-action" href="/teams">
+            <i class="fas fa-users"></i> Teams
+        </a>
+        
+        <a class="list-group-item list-group-item-action" href="/projects/goals">
+            <i class="fas fa-bullseye"></i> Goals
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="/profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a class="list-group-item list-group-item-action" href="#">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Button -->
+<button id="sidebar-toggle" class="btn dhaniya-bg text-white">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Main Content -->
+<div class="content-wrapper with-sidebar" id="content-wrapper">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="dhaniya-card card">
+                    <div class="card-header dhaniya-bg text-white">
+                        <h3>🎫 Create Support Ticket</h3>
+                        <small>Get help from our support team</small>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    {{ form.title.label(class="form-label") }}
+                                    {{ form.title(class="form-control", placeholder="Brief description of your issue") }}
+                                    {% for error in form.title.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.priority.label(class="form-label") }}
+                                    {{ form.priority(class="form-select") }}
+                                    {% for error in form.priority.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.category.label(class="form-label") }}
+                                    <select class="form-select" name="category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="bug_report">🐛 Bug Report</option>
+                                        <option value="feature_request">💡 Feature Request</option>
+                                        <option value="technical_support">🔧 Technical Support</option>
+                                        <option value="account_issue">👤 Account Issue</option>
+                                        <option value="billing">💳 Billing</option>
+                                        <option value="general_inquiry">❓ General Inquiry</option>
+                                        <option value="other">📝 Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.project.label(class="form-label") }}
+                                    {{ form.project(class="form-select") }}
+                                    <small class="text-muted">Related project (optional)</small>
+                                    {% for error in form.project.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.description.label(class="form-label") }}
+                                {{ form.description(class="form-control", rows="6", placeholder="Please provide detailed information about your issue, including steps to reproduce if applicable.") }}
+                                {% for error in form.description.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Environment Info -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Operating System</label>
+                                    <select class="form-select" name="os_info">
+                                        <option value="">Select OS (optional)</option>
+                                        <option value="windows">🪟 Windows</option>
+                                        <option value="macos">🍎 macOS</option>
+                                        <option value="linux">🐧 Linux</option>
+                                        <option value="android">🤖 Android</option>
+                                        <option value="ios">📱 iOS</option>
+                                        <option value="other">🔧 Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Browser (if applicable)</label>
+                                    <select class="form-select" name="browser_info">
+                                        <option value="">Select Browser (optional)</option>
+                                        <option value="chrome">🌐 Google Chrome</option>
+                                        <option value="firefox">🦊 Mozilla Firefox</option>
+                                        <option value="safari">🧭 Safari</option>
+                                        <option value="edge">🌊 Microsoft Edge</option>
+                                        <option value="other">🔧 Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Expected Response Time</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="urgency" value="low" checked>
+                                    <label class="form-check-label">
+                                        📅 Standard (2-3 business days)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="urgency" value="medium">
+                                    <label class="form-check-label">
+                                        ⚡ Priority (1 business day)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="urgency" value="high">
+                                    <label class="form-check-label">
+                                        🚨 Urgent (same day)
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="/tickets" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Back to Tickets
+                                </a>
+                                <button type="submit" class="btn dhaniya-bg text-white">
+                                    <i class="fas fa-paper-plane"></i> Submit Ticket
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar-wrapper');
+    const contentWrapper = document.getElementById('content-wrapper');
+    
+    if (sidebarToggle && sidebar && contentWrapper) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            contentWrapper.classList.toggle('sidebar-collapsed');
+        });
+    }
+});
+</script>
+{% endblock %}

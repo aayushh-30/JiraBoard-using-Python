@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}{{ sprint.name }} - Sprint Details - Dhaniya{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+<div id="sidebar-wrapper" class="bg-light border-end sidebar">
+    <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="/dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="list-group-item list-group-item-action active" href="/projects">
+            <i class="fas fa-project-diagram"></i> Projects
+        </a>
+        <a class="list-group-item list-group-item-action" href="/teams">
+            <i class="fas fa-users"></i> Teams
+        </a>
+        
+        <a class="list-group-item list-group-item-action" href="/projects/goals">
+            <i class="fas fa-bullseye"></i> Goals
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="/profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a class="list-group-item list-group-item-action" href="#">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Button -->
+<button id="sidebar-toggle" class="btn dhaniya-bg text-white">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Main Content -->
+<div class="content-wrapper with-sidebar" id="content-wrapper">
+    <div class="container-fluid">
+        <!-- Sprint Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1>🏃‍♂️ {{ sprint.name }}</h1>
+                <p class="text-muted">
+                    <i class="fas fa-project-diagram"></i> 
+                    {{ sprint.project.name if sprint.project else 'Unknown Project' }}
+                </p>
+            </div>
+            <div>
+                {% if current_user.role.role_name in ['admin', 'manager'] %}
+                <a href="/sprints/{{ sprint.sprint_id }}/edit" class="btn btn-outline-primary">
+                    <i class="fas fa-edit"></i> Edit Sprint
+                </a>
+                {% endif %}
+                {% if sprint.status != 'completed' %}
+                <a href="/sprints/{{ sprint.sprint_id }}/tasks/assign" class="btn dhaniya-bg text-white">
+                    <i class="fas fa-plus"></i> Assign Tasks
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sprint Info -->
+            <div class="col-md-4">
+                <div class="dhaniya-card card mb-4">
+                    <div class="card-header dhaniya-bg text-white">
+                        <h5>📊 Sprint Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Status:</strong><br>
+                            <span class="badge bg-{{ 'success' if sprint.status == 'completed' else 'info' if sprint.status == 'active' else 'warning' if sprint.status == 'planning' else 'secondary' }}">
+                                {{ sprint.status.title() if sprint.status else 'Planning' }}
+                            </span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Duration:</strong><br>
+                            <span class="text-muted">{{ sprint.duration_weeks or 2 }} weeks</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Start Date:</strong><br>
+                            <span class="text-muted">{{ sprint.start_date.strftime('%B %d, %Y') if sprint.start_date else 'Not set' }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>End Date:</strong><br>
+                            <span class="text-muted">{{ sprint.end_date.strftime('%B %d, %Y') if sprint.end_date else 'Not set' }}</span>
+                        </div>
+                        {% if sprint.scrum_master %}
+                        <div class="mb-3">
+                            <strong>Scrum Master:</strong><br>
+                            <span class="text-muted">{{ sprint.scrum_master.full_name }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="mb-3">
+                            <strong>Capacity:</strong><br>
+                            <span class="text-muted">{{ sprint.capacity or 'Not set' }} story points</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Progress:</strong><br>
+                            <div class="progress">
+                                <div class="progress-bar dhaniya-bg" role="progressbar" 
+                                     data-width="{{ sprint.progress or 0 }}"
+                                     aria-valuenow="{{ sprint.progress or 0 }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    {{ sprint.progress or 0 }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sprint Goals -->
+                {% if sprint.goals %}
+                <div class="dhaniya-card card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5>🎯 Sprint Goals</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for goal in sprint.goals.split('\n') if goal.strip() %}
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-bullseye text-success me-2"></i>
+                            <span>{{ goal.strip() }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Definition of Done -->
+                {% if sprint.definition_of_done %}
+                <div class="dhaniya-card card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5>✅ Definition of Done</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for criterion in sprint.definition_of_done.split('\n') if criterion.strip() %}
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-info me-2"></i>
+                            <span>{{ criterion.strip() }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sprint Tasks and Analytics -->
+            <div class="col-md-8">
+                <!-- Quick Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-primary">{{ tasks|length if tasks else 0 }}</h3>
+                                <small>Total Tasks</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-success">{{ completed_tasks|length if completed_tasks else 0 }}</h3>
+                                <small>Completed</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-warning">{{ in_progress_tasks|length if in_progress_tasks else 0 }}</h3>
+                                <small>In Progress</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-info">{{ days_remaining if days_remaining is defined else 'N/A' }}</h3>
+                                <small>Days Left</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Burndown Chart Placeholder -->
+                {% if sprint.enable_burndown %}
+                <div class="dhaniya-card card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5>📈 Sprint Burndown</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center py-4">
+                            <canvas id="burndownChart" width="400" height="200"></canvas>
+                            <p class="text-muted mt-3">Burndown chart showing remaining work over time</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Sprint Tasks -->
+                <div class="dhaniya-card card">
+                    <div class="card-header dhaniya-bg text-white d-flex justify-content-between align-items-center">
+                        <h5>📋 Sprint Backlog</h5>
+                        <div>
+                            <a href="/sprints/{{ sprint.sprint_id }}/tasks/assign" class="btn btn-light btn-sm">
+                                <i class="fas fa-plus"></i> Assign Tasks
+                            </a>
+                            <a href="/sprints/{{ sprint.sprint_id }}/board" class="btn btn-light btn-sm">
+                                <i class="fas fa-columns"></i> Kanban Board
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if tasks %}
+                        <div class="row">
+                            <!-- To Do Column -->
+                            <div class="col-md-4">
+                                <h6 class="text-secondary">📝 To Do</h6>
+                                {% for task in tasks if task.status == 'todo' or task.status == 'new' %}
+                                <div class="card mb-2 border-secondary">
+                                    <div class="card-body p-3">
+                                        <h6 class="card-title">{{ task.title }}</h6>
+                                        <p class="card-text small">{{ task.description[:60] + '...' if task.description and task.description|length > 60 else task.description or '' }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-{{ 'danger' if task.priority == 'high' else 'warning' if task.priority == 'medium' else 'secondary' }}">
+                                                {{ task.priority.title() if task.priority else 'Low' }}
+                                            </span>
+                                            <small class="text-muted">{{ task.assigned_to.full_name if task.assigned_to else 'Unassigned' }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- In Progress Column -->
+                            <div class="col-md-4">
+                                <h6 class="text-warning">⚡ In Progress</h6>
+                                {% for task in tasks if task.status == 'in_progress' %}
+                                <div class="card mb-2 border-warning">
+                                    <div class="card-body p-3">
+                                        <h6 class="card-title">{{ task.title }}</h6>
+                                        <p class="card-text small">{{ task.description[:60] + '...' if task.description and task.description|length > 60 else task.description or '' }}</p>
+                                        <div class="progress mb-2" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" data-width="{{ task.progress or 0 }}"></div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-{{ 'danger' if task.priority == 'high' else 'warning' if task.priority == 'medium' else 'secondary' }}">
+                                                {{ task.priority.title() if task.priority else 'Low' }}
+                                            </span>
+                                            <small class="text-muted">{{ task.assigned_to.full_name if task.assigned_to else 'Unassigned' }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Done Column -->
+                            <div class="col-md-4">
+                                <h6 class="text-success">✅ Done</h6>
+                                {% for task in tasks if task.status == 'completed' or task.status == 'done' %}
+                                <div class="card mb-2 border-success">
+                                    <div class="card-body p-3">
+                                        <h6 class="card-title">{{ task.title }}</h6>
+                                        <p class="card-text small">{{ task.description[:60] + '...' if task.description and task.description|length > 60 else task.description or '' }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-success">Completed</span>
+                                            <small class="text-muted">{{ task.assigned_to.full_name if task.assigned_to else 'Unassigned' }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">No tasks assigned to this sprint yet.</p>
+                            <a href="/sprints/{{ sprint.sprint_id }}/tasks/assign" class="btn dhaniya-bg text-white">
+                                <i class="fas fa-plus"></i> Assign Tasks to Sprint
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-4">
+            <a href="/projects/{{ sprint.project_id if sprint.project else '' }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Project
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar-wrapper');
+    const contentWrapper = document.getElementById('content-wrapper');
+    
+    if (sidebarToggle && sidebar && contentWrapper) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            contentWrapper.classList.toggle('sidebar-collapsed');
+        });
+    }
+
+    // Set progress bar widths from data attributes
+    document.querySelectorAll('.progress-bar[data-width]').forEach(function(bar) {
+        const width = bar.getAttribute('data-width');
+        bar.style.width = width + '%';
+    });
+
+    // Simple burndown chart using Chart.js (if available)
+    const burndownCanvas = document.getElementById('burndownChart');
+    if (burndownCanvas && typeof Chart !== 'undefined') {
+        const ctx = burndownCanvas.getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+                datasets: [{
+                    label: 'Remaining Work',
+                    data: [100, 85, 70, 60, 45, 30, 15],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }, {
+                    label: 'Ideal Burndown',
+                    data: [100, 85, 70, 55, 40, 25, 0],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderDash: [5, 5],
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Sprint Burndown Chart'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Helpdesk Ticket - Jira Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .main-content { margin-left: 280px; padding: 20px; }
+        .helpdesk-header { background: linear-gradient(135deg, #fd7e14 0%, #dc3545 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 25px; }
+        .ticket-container { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .priority-selector { display: flex; gap: 10px; flex-wrap: wrap; }
+        .priority-option { border: 2px solid #dee2e6; border-radius: 8px; padding: 15px 20px; cursor: pointer; transition: all 0.3s; text-align: center; min-width: 120px; }
+        .priority-option:hover { transform: translateY(-2px); }
+        .priority-option.selected { border-color: #fd7e14; background: #fff5f0; }
+        .priority-low { border-color: #28a745; }
+        .priority-low:hover, .priority-low.selected { border-color: #28a745; background: #d4edda; }
+        .priority-medium { border-color: #ffc107; }
+        .priority-medium:hover, .priority-medium.selected { border-color: #ffc107; background: #fff3cd; }
+        .priority-high { border-color: #dc3545; }
+        .priority-high:hover, .priority-high.selected { border-color: #dc3545; background: #f8d7da; }
+        .priority-critical { border-color: #6f42c1; }
+        .priority-critical:hover, .priority-critical.selected { border-color: #6f42c1; background: #e2d9f3; }
+        .category-icon { font-size: 2rem; margin-bottom: 10px; }
+        .ticket-template { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s; }
+        .ticket-template:hover { border-color: #fd7e14; background: #fff5f0; }
+        .ticket-template.selected { border-color: #fd7e14; background: #fff5f0; }
+        .knowledge-base { background: #e7f3ff; border-left: 4px solid #0d6efd; padding: 15px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+        .attachment-zone { border: 2px dashed #dee2e6; border-radius: 10px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .attachment-zone:hover { border-color: #fd7e14; background: #fff5f0; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="helpdesk-header">
+            <h1><i class="fas fa-life-ring"></i> Create Helpdesk Ticket</h1>
+            <p class="mb-0">Get help with technical issues, feature requests, or general support</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" id="helpdeskForm">
+            {{ form.hidden_tag() }}
+            
+            <!-- Quick Templates -->
+            <div class="ticket-container">
+                <h4><i class="fas fa-templates"></i> Quick Templates</h4>
+                <p class="text-muted mb-4">Start with a pre-filled template or create from scratch</p>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="ticket-template" data-template="bug_report" onclick="selectTemplate(this)">
+                            <div class="text-center">
+                                <i class="fas fa-bug text-danger category-icon"></i>
+                                <h6>Bug Report</h6>
+                                <small class="text-muted">Report a software bug or error</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="ticket-template" data-template="feature_request" onclick="selectTemplate(this)">
+                            <div class="text-center">
+                                <i class="fas fa-lightbulb text-warning category-icon"></i>
+                                <h6>Feature Request</h6>
+                                <small class="text-muted">Request a new feature or enhancement</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="ticket-template" data-template="technical_support" onclick="selectTemplate(this)">
+                            <div class="text-center">
+                                <i class="fas fa-tools text-info category-icon"></i>
+                                <h6>Technical Support</h6>
+                                <small class="text-muted">Get help with technical issues</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="ticket-template" data-template="account_access" onclick="selectTemplate(this)">
+                            <div class="text-center">
+                                <i class="fas fa-user-lock text-secondary category-icon"></i>
+                                <h6>Account Access</h6>
+                                <small class="text-muted">Login, password, or access issues</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="ticket-template" data-template="integration_help" onclick="selectTemplate(this)">
+                            <div class="text-center">
+                                <i class="fas fa-plug text-success category-icon"></i>
+                                <h6>Integration Help</h6>
+                                <small class="text-muted">API, webhooks, or third-party integration</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="ticket-template" data-template="general_inquiry" onclick="selectTemplate(this)">
+                            <div class="text-center">
+                                <i class="fas fa-question-circle text-primary category-icon"></i>
+                                <h6>General Inquiry</h6>
+                                <small class="text-muted">Questions or general support</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="template_type" id="templateInput">
+            </div>
+
+            <!-- Ticket Details -->
+            <div class="ticket-container">
+                <h4><i class="fas fa-edit"></i> Ticket Details</h4>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label fw-semibold") }}
+                            {{ form.title(class="form-control", placeholder="Brief description of your issue...") }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Related Project</label>
+                            <select class="form-select" name="project_id">
+                                <option value="">Select Project (Optional)</option>
+                                <option value="1">Mobile App Development</option>
+                                <option value="2">Web Platform</option>
+                                <option value="3">API Service</option>
+                                <option value="4">Data Analytics</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    {{ form.description.label(class="form-label fw-semibold") }}
+                    {{ form.description(class="form-control", rows="6", placeholder="Provide a detailed description of your issue. Include steps to reproduce, expected behavior, and any error messages...") }}
+                </div>
+
+                <!-- Priority Selection -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Priority Level</label>
+                    <p class="text-muted small mb-3">Select the urgency and impact of this issue</p>
+                    
+                    <div class="priority-selector">
+                        <div class="priority-option priority-low" data-priority="low" onclick="selectPriority(this)">
+                            <i class="fas fa-chevron-down text-success"></i>
+                            <div class="fw-semibold">Low</div>
+                            <small class="text-muted">Minor issue</small>
+                        </div>
+                        <div class="priority-option priority-medium" data-priority="medium" onclick="selectPriority(this)">
+                            <i class="fas fa-minus text-warning"></i>
+                            <div class="fw-semibold">Medium</div>
+                            <small class="text-muted">Normal issue</small>
+                        </div>
+                        <div class="priority-option priority-high" data-priority="high" onclick="selectPriority(this)">
+                            <i class="fas fa-chevron-up text-danger"></i>
+                            <div class="fw-semibold">High</div>
+                            <small class="text-muted">Urgent issue</small>
+                        </div>
+                        <div class="priority-option priority-critical" data-priority="critical" onclick="selectPriority(this)">
+                            <i class="fas fa-exclamation-triangle text-purple"></i>
+                            <div class="fw-semibold">Critical</div>
+                            <small class="text-muted">System down</small>
+                        </div>
+                    </div>
+                    <input type="hidden" name="priority" id="priorityInput">
+                </div>
+
+                <!-- Environment Details -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Operating System</label>
+                            <select class="form-select" name="operating_system">
+                                <option value="">Select OS</option>
+                                <option value="windows">Windows</option>
+                                <option value="macos">macOS</option>
+                                <option value="linux">Linux</option>
+                                <option value="ios">iOS</option>
+                                <option value="android">Android</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Browser/App Version</label>
+                            <input type="text" class="form-control" name="browser_version" placeholder="e.g., Chrome 118.0, Safari 17.0, App v2.1.0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Knowledge Base Suggestions -->
+            <div class="knowledge-base">
+                <h6><i class="fas fa-lightbulb me-2"></i>Knowledge Base Suggestions</h6>
+                <p class="mb-2">Before submitting, check if your issue is covered in our knowledge base:</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-book"></i> User Guide
+                    </a>
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-question-circle"></i> FAQ
+                    </a>
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-code"></i> API Documentation
+                    </a>
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-video"></i> Video Tutorials
+                    </a>
+                </div>
+            </div>
+
+            <!-- File Attachments -->
+            <div class="ticket-container">
+                <h4><i class="fas fa-paperclip"></i> Attachments</h4>
+                <p class="text-muted mb-3">Upload screenshots, error logs, or other relevant files</p>
+                
+                <div class="attachment-zone" onclick="document.getElementById('attachmentInput').click()">
+                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                    <h6>Drop files here or click to browse</h6>
+                    <small class="text-muted">Max 10MB per file • PNG, JPG, PDF, TXT, LOG files</small>
+                    <input type="file" id="attachmentInput" multiple class="d-none" accept=".png,.jpg,.jpeg,.pdf,.txt,.log,.zip">
+                </div>
+                
+                <div id="attachmentPreview" class="mt-3" style="display: none;"></div>
+            </div>
+
+            <!-- Contact Preferences -->
+            <div class="ticket-container">
+                <h4><i class="fas fa-bell"></i> Contact Preferences</h4>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Preferred Contact Method</label>
+                            <select class="form-select" name="contact_method">
+                                <option value="email">Email</option>
+                                <option value="phone">Phone</option>
+                                <option value="in_app">In-App Notification</option>
+                                <option value="slack">Slack</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Response Time Expectation</label>
+                            <select class="form-select" name="response_time">
+                                <option value="asap">ASAP (Critical issues)</option>
+                                <option value="same_day">Same business day</option>
+                                <option value="24_hours">Within 24 hours</option>
+                                <option value="48_hours">Within 48 hours</option>
+                                <option value="no_rush">No rush</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="ccTeam" name="cc_team">
+                    <label class="form-check-label" for="ccTeam">
+                        <i class="fas fa-users me-1"></i>CC my team members on updates
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="allowRemote" name="allow_remote">
+                    <label class="form-check-label" for="allowRemote">
+                        <i class="fas fa-desktop me-1"></i>Allow remote screen sharing for troubleshooting
+                    </label>
+                </div>
+            </div>
+
+            <!-- Submit Actions -->
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-warning btn-lg">
+                    <i class="fas fa-paper-plane"></i> Submit Ticket
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+                    <i class="fas fa-save"></i> Save Draft
+                </button>
+                <button type="button" class="btn btn-outline-info" onclick="checkSimilar()">
+                    <i class="fas fa-search"></i> Check Similar Tickets
+                </button>
+                <a href="{{ url_for('helpdesk.list_helpdesk') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-list"></i> My Tickets
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedTemplate = null;
+        let selectedPriority = 'medium';
+
+        // Template data
+        const templates = {
+            'bug_report': {
+                title: 'Bug Report: [Brief description]',
+                description: `**Steps to Reproduce:**
+1. 
+2. 
+3. 
+
+**Expected Behavior:**
+
+
+**Actual Behavior:**
+
+
+**Additional Information:**
+- Browser/Device: 
+- Version: 
+- Error Message: `
+            },
+            'feature_request': {
+                title: 'Feature Request: [Feature name]',
+                description: `**Feature Description:**
+
+
+**Business Justification:**
+
+
+**Proposed Solution:**
+
+
+**Acceptance Criteria:**
+- 
+- 
+- 
+
+**Additional Notes:**`
+            },
+            'technical_support': {
+                title: 'Technical Support: [Issue summary]',
+                description: `**Issue Description:**
+
+
+**What I've Tried:**
+- 
+- 
+
+**Error Messages:**
+
+
+**Impact:**
+
+
+**Urgency:**`
+            },
+            'account_access': {
+                title: 'Account Access Issue: [Type of issue]',
+                description: `**Account Information:**
+- Username/Email: 
+- Last successful login: 
+
+**Issue Description:**
+
+
+**Steps Taken:**
+- 
+- 
+
+**Error Messages:**`
+            },
+            'integration_help': {
+                title: 'Integration Help: [Integration type]',
+                description: `**Integration Details:**
+- API/Service: 
+- Version: 
+- Documentation Followed: 
+
+**Issue Description:**
+
+
+**Request/Response Examples:**
+
+
+**Error Messages:**`
+            },
+            'general_inquiry': {
+                title: 'General Inquiry: [Topic]',
+                description: `**Question/Inquiry:**
+
+
+**Context:**
+
+
+**What I'm Trying to Achieve:**
+
+
+**Additional Information:**`
+            }
+        };
+
+        function selectTemplate(card) {
+            // Remove previous selection
+            document.querySelectorAll('.ticket-template').forEach(c => c.classList.remove('selected'));
+            
+            // Add selection to clicked card
+            card.classList.add('selected');
+            selectedTemplate = card.dataset.template;
+            document.getElementById('templateInput').value = selectedTemplate;
+            
+            // Fill form with template data
+            if (templates[selectedTemplate]) {
+                const template = templates[selectedTemplate];
+                document.querySelector('input[name="title"]').value = template.title;
+                document.querySelector('textarea[name="description"]').value = template.description;
+            }
+        }
+
+        function selectPriority(option) {
+            // Remove previous selection
+            document.querySelectorAll('.priority-option').forEach(o => o.classList.remove('selected'));
+            
+            // Add selection to clicked option
+            option.classList.add('selected');
+            selectedPriority = option.dataset.priority;
+            document.getElementById('priorityInput').value = selectedPriority;
+        }
+
+        // Set default priority
+        document.querySelector('.priority-option[data-priority="medium"]').classList.add('selected');
+        document.getElementById('priorityInput').value = 'medium';
+
+        // File attachment handling
+        document.getElementById('attachmentInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const preview = document.getElementById('attachmentPreview');
+            
+            if (files.length > 0) {
+                preview.style.display = 'block';
+                preview.innerHTML = '<h6>Selected Files:</h6>';
+                
+                files.forEach(file => {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'd-flex align-items-center justify-content-between bg-light p-2 rounded mb-2';
+                    fileDiv.innerHTML = `
+                        <div>
+                            <i class="fas fa-file me-2"></i>
+                            <span>${file.name}</span>
+                            <small class="text-muted ms-2">(${formatFileSize(file.size)})</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    preview.appendChild(fileDiv);
+                });
+            }
+        });
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function saveDraft() {
+            alert('Ticket saved as draft!');
+        }
+
+        function checkSimilar() {
+            const title = document.querySelector('input[name="title"]').value;
+            if (!title.trim()) {
+                alert('Please enter a title first to search for similar tickets');
+                return;
+            }
+            alert('Searching for similar tickets...');
+        }
+
+        // Form validation
+        document.getElementById('helpdeskForm').addEventListener('submit', function(e) {
+            const title = document.querySelector('input[name="title"]').value;
+            const description = document.querySelector('textarea[name="description"]').value;
+            
+            if (!title.trim()) {
+                e.preventDefault();
+                alert('Please enter a ticket title');
+                return;
+            }
+            
+            if (!description.trim()) {
+                e.preventDefault();
+                alert('Please provide a description of your issue');
+                return;
+            }
+            
+            if (!selectedPriority) {
+                e.preventDefault();
+                alert('Please select a priority level');
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

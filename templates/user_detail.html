@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+
+{% block title %}User Details - {{ user.username }}{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+{% include 'admin_sidebar.html' %}
+
+<!-- Main Content -->
+<div class="content-wrapper">
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>User Details</h2>
+            
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <h5>{{ user.username }}</h5>
+                    <div>
+                        {% if current_user.has_permission('user_edit') %}
+                            <a href="{{ url_for('user.edit', user_id=user.user_id) }}" class="btn btn-primary btn-sm">Edit User</a>
+                        {% endif %}
+                        {% if current_user.has_permission('user_edit') %}
+                            <button class="btn btn-info btn-sm" onclick="manageUserRoles('{{ user.user_id }}', '{{ user.username }}')">
+                                <i class="fas fa-user-tag"></i> Manage Roles
+                            </button>
+                        {% endif %}
+                        <a href="{{ url_for('user.users') }}" class="btn btn-secondary btn-sm">Back to Users</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Email:</strong> {{ user.email }}</p>
+                            <p><strong>Contact:</strong> {{ user.contact_no or 'Not provided' }}</p>
+                            <p><strong>Primary Role:</strong> {{ user.role_name }}</p>
+                            <p><strong>All Roles:</strong></p>
+                            <div class="roles-container mb-3" id="user-roles-{{ user.user_id }}">
+                                <!-- Roles will be loaded by JavaScript -->
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading roles...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Status:</strong> 
+                                {% if user.is_approved %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Created:</strong> {{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else 'Unknown' }}</p>
+                            <p><strong>Last Updated:</strong> {{ user.updated_at.strftime('%Y-%m-%d %H:%M') if user.updated_at else 'Never' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Role Management Modal -->
+<div class="modal fade" id="roleManagementModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-tag"></i>
+                    Manage Roles for <span id="target-username"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Current Roles</h6>
+                        <div id="current-roles-list" class="mb-3">
+                            <!-- Current roles will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Add Role</h6>
+                        <div class="mb-3">
+                            <select class="form-select" id="new-role-select">
+                                <option value="">Select a role to add...</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="developer">Developer</option>
+                                <option value="client">Client</option>
+                                <option value="viewer">Viewer</option>
+                            </select>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="make-primary-checkbox">
+                            <label class="form-check-label" for="make-primary-checkbox">
+                                Set as Primary Role
+                            </label>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="addRoleToUser()">
+                            <i class="fas fa-plus"></i> Add Role
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.role-badge {
+    margin-right: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
+    position: relative;
+}
+
+.role-badge.primary-role {
+    border: 2px solid #ffc107;
+    font-weight: bold;
+}
+
+.role-badge .remove-role {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    line-height: 1;
+}
+</style>
+
+<script>
+let currentUserId = '{{ user.user_id }}';
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadUserRoles(currentUserId);
+});
+
+async function loadUserRoles(userId) {
+    const container = document.getElementById(`user-roles-${userId}`);
+    try {
+        const response = await fetch(`/admin/user-roles/${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch roles');
+        
+        const data = await response.json();
+        const roles = data.roles || [];
+        
+        displayUserRoles(container, roles, userId);
+    } catch (error) {
+        container.innerHTML = '<span class="text-danger">Error loading roles</span>';
+    }
+}
+
+function displayUserRoles(container, roles, userId) {
+    if (roles.length === 0) {
+        container.innerHTML = '<span class="text-muted">No roles assigned</span>';
+        return;
+    }
+
+    let html = '';
+    roles.forEach(role => {
+        const isPrimary = role.is_primary;
+        const badgeClass = getRoleBadgeClass(role.role_name);
+        const primaryIndicator = isPrimary ? ' <i class="fas fa-star text-warning" title="Primary Role"></i>' : '';
+        
+        html += `
+            <span class="badge ${badgeClass} role-badge ${isPrimary ? 'primary-role' : ''}" 
+                  title="${isPrimary ? 'Primary Role' : 'Secondary Role'}">
+                ${role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)}${primaryIndicator}
+            </span>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function getRoleBadgeClass(roleName) {
+    const classes = {
+        'admin': 'bg-danger text-white',
+        'manager': 'bg-warning text-dark',
+        'developer': 'bg-primary text-white',
+        'client': 'bg-info text-white',
+        'viewer': 'bg-secondary text-white',
+        'pending': 'bg-light text-dark'
+    };
+    return classes[roleName] || 'bg-secondary text-white';
+}
+
+function manageUserRoles(userId, username) {
+    currentUserId = userId;
+    document.getElementById('target-username').textContent = username;
+    
+    // Load current roles in modal
+    loadCurrentRolesInModal(userId);
+    
+    // Show modal
+    new bootstrap.Modal(document.getElementById('roleManagementModal')).show();
+}
+
+async function loadCurrentRolesInModal(userId) {
+    const container = document.getElementById('current-roles-list');
+    container.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div>';
+    
+    try {
+        const response = await fetch(`/admin/user-roles/${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch roles');
+        
+        const data = await response.json();
+        const roles = data.roles || [];
+        
+        let html = '';
+        if (roles.length === 0) {
+            html = '<p class="text-muted">No roles assigned</p>';
+        } else {
+            roles.forEach(role => {
+                const isPrimary = role.is_primary;
+                const badgeClass = getRoleBadgeClass(role.role_name);
+                const primaryText = isPrimary ? ' (Primary)' : '';
+                const primaryButton = isPrimary ? '' : `
+                    <button class="btn btn-sm btn-outline-warning ms-2" 
+                            onclick="setPrimaryRole('${userId}', '${role.role_id}')"
+                            title="Set as Primary Role">
+                        <i class="fas fa-star"></i>
+                    </button>
+                `;
+                
+                html += `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge ${badgeClass}">${role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)}${primaryText}</span>
+                        <div>
+                            ${primaryButton}
+                            <button class="btn btn-sm btn-outline-danger ms-1" 
+                                    onclick="removeRoleFromUser('${userId}', '${role.role_id}')"
+                                    title="Remove Role">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        container.innerHTML = html;
+    } catch (error) {
+        container.innerHTML = '<p class="text-danger">Error loading roles</p>';
+    }
+}
+
+async function addRoleToUser() {
+    const roleSelect = document.getElementById('new-role-select');
+    const makePrimary = document.getElementById('make-primary-checkbox').checked;
+    const roleName = roleSelect.value;
+    
+    if (!roleName) {
+        alert('Please select a role to add');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/add-user-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: currentUserId,
+                role_name: roleName,
+                is_primary: makePrimary
+            })
+        });
+        
+        if (response.ok) {
+            alert('Role added successfully');
+            roleSelect.value = '';
+            document.getElementById('make-primary-checkbox').checked = false;
+            loadCurrentRolesInModal(currentUserId);
+            loadUserRoles(currentUserId); // Refresh main display
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to add role');
+        }
+    } catch (error) {
+        alert('Error adding role');
+    }
+}
+
+async function removeRoleFromUser(userId, roleId) {
+    if (!confirm('Are you sure you want to remove this role?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/remove-user-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                role_id: roleId
+            })
+        });
+        
+        if (response.ok) {
+            alert('Role removed successfully');
+            loadCurrentRolesInModal(currentUserId);
+            loadUserRoles(currentUserId); // Refresh main display
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to remove role');
+        }
+    } catch (error) {
+        alert('Error removing role');
+    }
+}
+
+async function setPrimaryRole(userId, roleId) {
+    try {
+        const response = await fetch('/admin/set-primary-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                role_id: roleId
+            })
+        });
+        
+        if (response.ok) {
+            alert('Primary role updated successfully');
+            loadCurrentRolesInModal(currentUserId);
+            loadUserRoles(currentUserId); // Refresh main display
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to set primary role');
+        }
+    } catch (error) {
+        alert('Error setting primary role');
+    }
+}
+</script>
+</div>
+{% endblock %}

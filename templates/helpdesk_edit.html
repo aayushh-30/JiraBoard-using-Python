@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Helpdesk Ticket - Jira Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .main-content { margin-left: 280px; padding: 20px; }
+        .edit-header { background: linear-gradient(135deg, #20c997 0%, #198754 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 25px; }
+        .edit-container { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .priority-selector { display: flex; gap: 10px; flex-wrap: wrap; }
+        .priority-option { border: 2px solid #dee2e6; border-radius: 8px; padding: 15px 20px; cursor: pointer; transition: all 0.3s; text-align: center; min-width: 120px; }
+        .priority-option.selected { border-color: #20c997; background: #f0fdf4; }
+        .status-selector { display: flex; gap: 10px; flex-wrap: wrap; }
+        .status-option { border: 2px solid #dee2e6; border-radius: 8px; padding: 15px 20px; cursor: pointer; transition: all 0.3s; text-align: center; min-width: 120px; }
+        .status-option.selected { border-color: #198754; background: #f8fff9; }
+        .timeline-item { border-left: 3px solid #dee2e6; padding-left: 20px; margin-bottom: 20px; position: relative; }
+        .timeline-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #dee2e6; }
+        .timeline-item.created::before { background: #0d6efd; }
+        .timeline-item.updated::before { background: #ffc107; }
+        .timeline-item.resolved::before { background: #198754; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="edit-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-edit"></i> Edit Helpdesk Ticket</h1>
+                    <p class="mb-0">Update support ticket details and track resolution</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <span class="badge bg-light text-dark fs-6">#HD-2024-001</span>
+                    <span class="badge bg-warning fs-6">High Priority</span>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" id="editHelpdeskForm">
+            {{ form.hidden_tag() }}
+            
+            <div class="edit-container">
+                <h4><i class="fas fa-info-circle"></i> Ticket Information</h4>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label fw-semibold") }}
+                            {{ form.title(class="form-control", value=ticket.title if ticket else "Application Login Issue") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label fw-semibold") }}
+                            {{ form.description(class="form-control", rows="5") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Category</label>
+                            <select class="form-select" name="category">
+                                <option value="technical" selected>Technical Issue</option>
+                                <option value="billing">Billing Inquiry</option>
+                                <option value="account">Account Support</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="bug">Bug Report</option>
+                                <option value="general">General Inquiry</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Ticket ID</label>
+                            <input type="text" class="form-control" value="#HD-2024-001" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Customer</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="John Doe" readonly>
+                                <button class="btn btn-outline-secondary" type="button">
+                                    <i class="fas fa-user"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Contact</label>
+                            <input type="email" class="form-control" value="john.doe@example.com" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Created</label>
+                            <input type="text" class="form-control" value="2024-01-20 09:30 AM" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-container">
+                <h4><i class="fas fa-cogs"></i> Status & Priority</h4>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Status</label>
+                    <div class="status-selector">
+                        <div class="status-option" data-status="open" onclick="selectStatus(this)">
+                            <i class="fas fa-folder-open text-info"></i>
+                            <div class="fw-semibold">Open</div>
+                            <small class="text-muted">New ticket</small>
+                        </div>
+                        <div class="status-option selected" data-status="in_progress" onclick="selectStatus(this)">
+                            <i class="fas fa-play text-warning"></i>
+                            <div class="fw-semibold">In Progress</div>
+                            <small class="text-muted">Being worked on</small>
+                        </div>
+                        <div class="status-option" data-status="waiting" onclick="selectStatus(this)">
+                            <i class="fas fa-clock text-secondary"></i>
+                            <div class="fw-semibold">Waiting</div>
+                            <small class="text-muted">Customer response</small>
+                        </div>
+                        <div class="status-option" data-status="resolved" onclick="selectStatus(this)">
+                            <i class="fas fa-check text-success"></i>
+                            <div class="fw-semibold">Resolved</div>
+                            <small class="text-muted">Solution provided</small>
+                        </div>
+                        <div class="status-option" data-status="closed" onclick="selectStatus(this)">
+                            <i class="fas fa-lock text-secondary"></i>
+                            <div class="fw-semibold">Closed</div>
+                            <small class="text-muted">Completed</small>
+                        </div>
+                    </div>
+                    <input type="hidden" name="status" id="statusInput" value="in_progress">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Priority Level</label>
+                    <div class="priority-selector">
+                        <div class="priority-option" data-priority="low" onclick="selectPriority(this)">
+                            <i class="fas fa-chevron-down text-success"></i>
+                            <div class="fw-semibold">Low</div>
+                            <small class="text-muted">Minor issue</small>
+                        </div>
+                        <div class="priority-option" data-priority="medium" onclick="selectPriority(this)">
+                            <i class="fas fa-minus text-warning"></i>
+                            <div class="fw-semibold">Medium</div>
+                            <small class="text-muted">Normal issue</small>
+                        </div>
+                        <div class="priority-option selected" data-priority="high" onclick="selectPriority(this)">
+                            <i class="fas fa-chevron-up text-danger"></i>
+                            <div class="fw-semibold">High</div>
+                            <small class="text-muted">Urgent issue</small>
+                        </div>
+                        <div class="priority-option" data-priority="critical" onclick="selectPriority(this)">
+                            <i class="fas fa-exclamation-triangle text-purple"></i>
+                            <div class="fw-semibold">Critical</div>
+                            <small class="text-muted">System down</small>
+                        </div>
+                    </div>
+                    <input type="hidden" name="priority" id="priorityInput" value="high">
+                </div>
+            </div>
+
+            <div class="edit-container">
+                <h4><i class="fas fa-users"></i> Assignment & Details</h4>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Assigned To</label>
+                            <select class="form-select" name="assigned_to">
+                                <option value="">Unassigned</option>
+                                <option value="support_team" selected>Support Team</option>
+                                <option value="tech_lead">Technical Lead</option>
+                                <option value="john_smith">John Smith</option>
+                                <option value="sarah_johnson">Sarah Johnson</option>
+                                <option value="mike_chen">Mike Chen</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Department</label>
+                            <select class="form-select" name="department">
+                                <option value="technical" selected>Technical Support</option>
+                                <option value="billing">Billing & Accounts</option>
+                                <option value="sales">Sales & Marketing</option>
+                                <option value="hr">Human Resources</option>
+                                <option value="general">General Support</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Due Date</label>
+                            <input type="datetime-local" class="form-control" name="due_date" value="2024-01-22T17:00">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Estimated Resolution Time</label>
+                            <select class="form-select" name="estimated_time">
+                                <option value="1h">1 Hour</option>
+                                <option value="4h" selected>4 Hours</option>
+                                <option value="8h">8 Hours</option>
+                                <option value="1d">1 Day</option>
+                                <option value="3d">3 Days</option>
+                                <option value="1w">1 Week</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-container">
+                <h4><i class="fas fa-comment-dots"></i> Resolution & Communication</h4>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Resolution Notes</label>
+                    <textarea class="form-control" name="resolution_notes" rows="4" placeholder="Add resolution details, steps taken, or solution provided..."></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Customer Response</label>
+                    <textarea class="form-control" name="customer_response" rows="3" placeholder="Message to send to the customer..."></textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyCustomer" name="notify_customer" checked>
+                            <label class="form-check-label" for="notifyCustomer">
+                                <i class="fas fa-envelope me-1"></i>Notify customer of updates
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="escalateIssue" name="escalate_issue">
+                            <label class="form-check-label" for="escalateIssue">
+                                <i class="fas fa-arrow-up me-1"></i>Escalate to management
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-container">
+                <h4><i class="fas fa-history"></i> Ticket Activity</h4>
+                
+                <div class="timeline">
+                    <div class="timeline-item created">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Ticket Created</h6>
+                                <p class="mb-1 text-muted">Initial support request submitted by customer</p>
+                                <small class="text-muted">by John Doe</small>
+                            </div>
+                            <small class="text-muted">Jan 20, 09:30 AM</small>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item updated">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Status Updated</h6>
+                                <p class="mb-1 text-muted">Ticket status changed from "Open" to "In Progress"</p>
+                                <small class="text-muted">by Support Team</small>
+                            </div>
+                            <small class="text-muted">Jan 20, 10:15 AM</small>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Comment Added</h6>
+                                <p class="mb-1 text-muted">Initial investigation completed, identified login service issue</p>
+                                <small class="text-muted">by Mike Chen</small>
+                            </div>
+                            <small class="text-muted">Jan 20, 11:00 AM</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-save"></i> Update Ticket
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                </button>
+                <a href="{{ url_for('helpdesk.list_helpdesk') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-list"></i> All Tickets
+                </a>
+                <button type="button" class="btn btn-outline-warning" onclick="escalateTicket()">
+                    <i class="fas fa-arrow-up"></i> Escalate
+                </button>
+                <button type="button" class="btn btn-outline-info" onclick="addComment()">
+                    <i class="fas fa-comment"></i> Add Comment
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedStatus = 'in_progress';
+        let selectedPriority = 'high';
+
+        function selectStatus(option) {
+            document.querySelectorAll('.status-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+            selectedStatus = option.dataset.status;
+            document.getElementById('statusInput').value = selectedStatus;
+        }
+
+        function selectPriority(option) {
+            document.querySelectorAll('.priority-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+            selectedPriority = option.dataset.priority;
+            document.getElementById('priorityInput').value = selectedPriority;
+        }
+
+        function escalateTicket() {
+            if (confirm('Escalate this ticket to management? This will notify supervisors and increase priority.')) {
+                document.getElementById('escalateIssue').checked = true;
+                alert('Ticket has been marked for escalation');
+            }
+        }
+
+        function addComment() {
+            const comment = prompt('Add a comment to this ticket:');
+            if (comment) {
+                alert('Comment added: ' + comment);
+            }
+        }
+
+        // Form validation
+        document.getElementById('editHelpdeskForm').addEventListener('submit', function(e) {
+            const title = document.querySelector('input[name="title"]').value;
+            if (!title.trim()) {
+                e.preventDefault();
+                alert('Please enter a ticket title');
+                return;
+            }
+        });
+
+        // Auto-update priority badge in header
+        function updateHeaderBadge() {
+            const priorityColors = {
+                'low': 'bg-success',
+                'medium': 'bg-warning',
+                'high': 'bg-danger',
+                'critical': 'bg-dark'
+            };
+            // Update logic here
+        }
+    </script>
+</body>
+</html>

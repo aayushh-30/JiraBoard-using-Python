@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+
+{% block title %}Teams - Dhaniya{% endblock %}
+
+{% block content %}
+{% include 'admin_sidebar.html' %}
+
+<!-- Main Content -->
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>👥 Teams</h1>
+            <a href="/teams/create" class="btn dhaniya-bg text-white">🚀 New Team</a>
+        </div>
+
+        <!-- Teams Grid -->
+        {% if teams %}
+        <div class="card-grid">
+            {% for team in teams %}
+            <div class="dhaniya-card card">
+                <div class="card-header dhaniya-bg text-white">
+                    <h5>{{ team.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ team.description or 'No description available' }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">{{ team.members|length }} members</small>
+                        <div>
+                            <a href="/teams/{{ team.team_id }}" class="btn btn-sm dhaniya-bg text-white">View</a>
+                            <a href="/teams/{{ team.team_id }}/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center">
+            <div class="dhaniya-card card p-5">
+                <div class="card-body">
+                    <h3>🌿 No Teams Yet</h3>
+                    <p class="lead">Start building your dream team to cultivate amazing projects together!</p>
+                    <a href="/teams/create" class="btn dhaniya-bg text-white">
+                        <i class="fas fa-plus"></i> Create Your First Team
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+</div>
+{% endblock %}

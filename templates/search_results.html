@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - Dhaniya{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>🔍 Search Results</h2>
+        
+        <!-- Search Form -->
+        <form method="GET" action="/search" class="mb-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="q" value="{{ query }}" placeholder="Search projects, tasks, users...">
+                        <button class="btn dhaniya-bg text-white" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="type" onchange="this.form.submit()">
+                        <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All</option>
+                        <option value="projects" {% if filter_type == 'projects' %}selected{% endif %}>Projects</option>
+                        <option value="tasks" {% if filter_type == 'tasks' %}selected{% endif %}>Tasks</option>
+                        <option value="users" {% if filter_type == 'users' %}selected{% endif %}>Users</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+        
+        {% if query %}
+            <p class="text-muted">
+                Found {{ total_results }} result(s) for "<strong>{{ query }}</strong>"
+                {% if filter_type != 'all' %}in {{ filter_type }}{% endif %}
+            </p>
+            
+            {% if results %}
+                <div class="row">
+                    {% for result in results %}
+                    <div class="col-md-6 mb-3">
+                        <div class="dhaniya-card card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="card-title">{{ result.title }}</h6>
+                                    <span class="badge 
+                                        {% if result.type == 'project' %}dhaniya-bg text-white{% endif %}
+                                        {% if result.type == 'task' %}bg-warning text-dark{% endif %}
+                                        {% if result.type == 'user' %}bg-info text-white{% endif %}
+                                    ">
+                                        {% if result.type == 'project' %}🌱{% endif %}
+                                        {% if result.type == 'task' %}📋{% endif %}
+                                        {% if result.type == 'user' %}👤{% endif %}
+                                        {{ result.type.title() }}
+                                    </span>
+                                </div>
+                                <p class="card-text text-muted">{{ result.description }}</p>
+                                <a href="#" class="btn btn-outline-success btn-sm">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if total_pages > 1 %}
+                <nav aria-label="Search pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if current_page > 1 %}
+                            <li class="page-item">
+                                <a class="page-link" href="?q={{ query }}&type={{ filter_type }}&page={{ current_page - 1 }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for page_num in range(1, total_pages + 1) %}
+                            <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                                <a class="page-link" href="?q={{ query }}&type={{ filter_type }}&page={{ page_num }}">{{ page_num }}</a>
+                            </li>
+                        {% endfor %}
+                        
+                        {% if current_page < total_pages %}
+                            <li class="page-item">
+                                <a class="page-link" href="?q={{ query }}&type={{ filter_type }}&page={{ current_page + 1 }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info">
+                    <h5>🌿 No results found</h5>
+                    <p>Try searching with different keywords or check your spelling.</p>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">
+                <h5>🔍 Start your search</h5>
+                <p>Enter keywords to search across projects, tasks, and users in Dhaniya.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

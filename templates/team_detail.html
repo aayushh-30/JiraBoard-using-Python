@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}{{ team.name }} - Team Details - Dhaniya{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+{% include 'admin_sidebar.html' %}
+
+<!-- Main Content -->
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1>👥 {{ team.name }}</h1>
+                <p class="text-muted">{{ team.description or 'No description available' }}</p>
+            </div>
+            <div>
+                <a href="/teams/{{ team.team_id }}/edit" class="btn btn-outline-primary">
+                    <i class="fas fa-edit"></i> Edit Team
+                </a>
+                <a href="/teams/{{ team.team_id }}/add-member" class="btn dhaniya-bg text-white">
+                    <i class="fas fa-user-plus"></i> Add Member
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Team Info -->
+            <div class="col-md-4">
+                <div class="dhaniya-card card mb-4">
+                    <div class="card-header dhaniya-bg text-white">
+                        <h5>🌿 Team Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Team Lead:</strong><br>
+                            <span class="text-muted">{{ team.team_lead.full_name if team.team_lead else 'Not assigned' }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Members:</strong><br>
+                            <span class="text-muted">{{ team.members|length }}/{{ team.max_members or '∞' }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Created:</strong><br>
+                            <span class="text-muted">{{ team.created_at.strftime('%B %d, %Y') if team.created_at else 'Unknown' }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Status:</strong><br>
+                            <span class="badge bg-success">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Members -->
+            <div class="col-md-8">
+                <div class="dhaniya-card card">
+                    <div class="card-header dhaniya-bg text-white">
+                        <h5>🧑‍🤝‍🧑 Team Members</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if team.members %}
+                        <div class="row">
+                            {% for member in team.members %}
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center p-3 border rounded">
+                                    <div class="avatar-circle me-3">
+                                        {{ member.full_name[0].upper() }}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ member.full_name }}</h6>
+                                        <small class="text-muted">{{ member.email }}</small>
+                                        {% if member.user_id == team.team_lead_id %}
+                                        <br><span class="badge dhaniya-bg text-white">Team Lead</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            Actions
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="/users/{{ member.user_id }}">View Profile</a></li>
+                                            {% if current_user.role == 'admin' or current_user.user_id == team.team_lead_id %}
+                                            <li><a class="dropdown-item text-danger" href="/teams/{{ team.team_id }}/remove/{{ member.user_id }}">Remove from Team</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">No team members yet.</p>
+                            <a href="/teams/{{ team.team_id }}/add-member" class="btn dhaniya-bg text-white">
+                                <i class="fas fa-user-plus"></i> Add First Member
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-4">
+            <a href="/teams" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Teams
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--dhaniya-primary), var(--dhaniya-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+</style>
+{% endblock %}

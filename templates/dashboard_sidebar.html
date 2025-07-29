@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Dhaniya{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+<div id="sidebar-wrapper" class="bg-light border-end">
+    <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action active" href="/dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="list-group-item list-group-item-action" href="/projects">
+            <i class="fas fa-project-diagram"></i> Projects
+        </a>
+        <a class="list-group-item list-group-item-action" href="#">
+            <i class="fas fa-users"></i> Teams
+        </a>
+        <a class="list-group-item list-group-item-action" href="/projects/goals">
+            <i class="fas fa-bullseye"></i> Goals
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="#">
+            <i class="fas fa-star"></i> Starred
+        </a>
+        <a class="list-group-item list-group-item-action" href="#">
+            <i class="fas fa-clock"></i> Recent
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="/profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a class="list-group-item list-group-item-action" href="#">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <h1>🌿 Dhaniya Dashboard</h1>
+
+        {% if current_user.is_authenticated %}
+                <!-- Welcome Card - Full Width to Match System Status -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="dhaniya-card card dashboard-welcome-card">
+                            <div class="card-body">
+                                <h3>Welcome back, {{ user.username }}! 🌱</h3>
+                                <p>📧 Email: {{ user.email }}</p>
+                                <p>👤 Role: <span class="badge dhaniya-bg text-white">{{ user.role }}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row dashboard-card-row mt-4">
+                    <div class="col-md-4">
+                        <div class="dhaniya-card card">
+                            <div class="card-body">
+                                <h5>🌱 My Projects</h5>
+                                <div class="stats-number">{{ projects|length }}</div>
+                                {% if projects %}
+                                    <small class="text-muted">Growing strong projects</small>
+                                {% else %}
+                                    <small class="text-muted">Plant your first project</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="dhaniya-card card">
+                            <div class="card-body">
+                                <h5>🚀 Quick Actions</h5>
+                                <p>Get started with project cultivation in the Dhaniya ecosystem</p>
+                                <a href="/projects/create" class="btn btn-sm dhaniya-bg text-white">🌿 New Project</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="dhaniya-card card">
+                            <div class="card-body">
+                                <h5>📊 System Status</h5>
+                                <p><span class="badge bg-success">🌿 Healthy</span></p>
+                                <small class="text-muted">All systems flourishing in our garden</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if projects %}
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <h4>Recent Projects</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Description</th>
+                                        <th>Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for project in projects %}
+                                    <tr>
+                                        <td>{{ project.title }}</td>
+                                        <td>{{ project.description }}</td>
+                                        <td>{{ project.created_at }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center">
+                    <h2>Welcome to Dhaniya</h2>
+                    <p>Please login to access your dashboard.</p>
+                    <a href="/auth/login" class="btn btn-primary">Login</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Enhanced Sidebar Toggle
+document.getElementById('sidebar-toggle').addEventListener('click', function() {
+    const sidebar = document.getElementById('sidebar-wrapper');
+    const content = document.querySelector('.content-wrapper');
+    
+    sidebar.classList.toggle('collapsed');
+    content.classList.toggle('sidebar-collapsed');
+});
+
+// Auto-hide sidebar on mobile
+if (window.innerWidth <= 768) {
+    document.getElementById('sidebar-wrapper').classList.add('collapsed');
+    document.querySelector('.content-wrapper').classList.add('sidebar-collapsed');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Dhaniya{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+<div id="sidebar-wrapper" class="bg-light border-end">
+    <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action active" href="/dashboard">
+            <i class="fas fa-crown"></i> Admin Dashboard
+        </a>
+        <a class="list-group-item list-group-item-action" href="/projects/">
+            <i class="fas fa-project-diagram"></i> All Projects
+        </a>
+        <a class="list-group-item list-group-item-action" href="/teams/">
+            <i class="fas fa-users"></i> Manage Teams
+        </a>
+        <a class="list-group-item list-group-item-action" href="/users/">
+            <i class="fas fa-user-cog"></i> User Management
+        </a>
+        <a class="list-group-item list-group-item-action" href="/reports/">
+            <i class="fas fa-chart-line"></i> System Reports
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="/admin/settings">
+            <i class="fas fa-server"></i> System Settings
+        </a>
+        <a class="list-group-item list-group-item-action" href="/admin/audit">
+            <i class="fas fa-history"></i> Audit Logs
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="/profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dhaniya-card card">
+                    <div class="card-header dhaniya-bg text-white" style="padding: 2rem 1.5rem;">
+                        <h2 style="color: #ffffff !important; font-weight: 600; margin-bottom: 0.5rem;"><i class="fas fa-crown"></i> Admin Dashboard</h2>
+                        <p class="mb-0" style="color: #ffffff !important; font-size: 1.1rem; opacity: 0.9;">System overview and administrative controls</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="dhaniya-card card">
+                    <div class="card-body text-center">
+                        <div class="text-primary mb-2">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                        <h3 class="text-primary mb-1">{{ total_users if total_users is not none else '0' }}</h3>
+                        <p class="text-muted mb-0">Total Users</p>
+                        <small class="{% if user_growth >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            <i class="fas fa-arrow-{% if user_growth >= 0 %}up{% else %}down{% endif %}"></i> 
+                            {% if user_growth >= 0 %}+{% endif %}{{ user_growth if user_growth is not none else '0' }} this week
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dhaniya-card card">
+                    <div class="card-body text-center">
+                        <div class="text-success mb-2">
+                            <i class="fas fa-project-diagram fa-2x"></i>
+                        </div>
+                        <h3 class="text-success mb-1">{{ active_projects if active_projects is not none else '0' }}</h3>
+                        <p class="text-muted mb-0">Active Projects</p>
+                        <small class="text-info">
+                            <i class="fas fa-chart-line"></i> {{ projects_completed_this_month if projects_completed_this_month is not none else '0' }} completed this month
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dhaniya-card card">
+                    <div class="card-body text-center">
+                        <div class="text-warning mb-2">
+                            <i class="fas fa-tasks fa-2x"></i>
+                        </div>
+                        <h3 class="text-warning mb-1">{{ total_tasks if total_tasks is not none else '0' }}</h3>
+                        <p class="text-muted mb-0">Total Tasks</p>
+                        <small class="text-danger">
+                            <i class="fas fa-exclamation-triangle"></i> {{ overdue_tasks if overdue_tasks is not none else '0' }} overdue
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dhaniya-card card">
+                    <div class="card-body text-center">
+                        <div class="text-info mb-2">
+                            <i class="fas fa-server fa-2x"></i>
+                        </div>
+                        <h3 class="text-info mb-1">{{ "%.1f"|format(uptime_percentage) if uptime_percentage is not none else '99.2' }}%</h3>
+                        <p class="text-muted mb-0">System Uptime</p>
+                        <small class="{% if uptime_percentage >= 99 %}text-success{% else %}text-warning{% endif %}">
+                            <i class="fas fa-{% if uptime_percentage >= 99 %}check-circle{% else %}exclamation-triangle{% endif %}"></i> 
+                            {% if uptime_percentage >= 99 %}All systems operational{% else %}Some issues detected{% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Recent Activity -->
+            <div class="col-md-8 mb-4">
+                <div class="dhaniya-card card">
+                    <div class="card-header dhaniya-bg text-white">
+                        <h5><i class="fas fa-clock"></i> Recent System Activity</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if system_activity %}
+                        {% for activity in system_activity %}
+                        <div class="activity-item border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1"><i class="fas {{ activity.icon }} me-2"></i>{{ activity.message }}</h6>
+                                    <small class="text-muted">{{ activity.date }} at {{ activity.time }}</small>
+                                </div>
+                                <span class="badge bg-{{ 'success' if activity.type == 'user_registered' else 'primary' if activity.type == 'project_created' else 'info' }}">
+                                    {{ activity.type.replace('_', ' ').title() }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="activity-item border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">No recent system activity</h6>
+                                    <p class="text-muted mb-1">System running smoothly</p>
+                                    <small class="text-muted">Current</small>
+                                </div>
+                                <span class="badge bg-success">System</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions & System Status -->
+            <div class="col-md-4">
+                <!-- Quick Admin Actions -->
+                <div class="dhaniya-card card mb-4">
+                    <div class="card-header dhaniya-bg text-white">
+                        <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="/users/create" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-user-plus"></i> Add New User
+                            </a>
+                            <a href="/projects/create" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-plus"></i> Create Project
+                            </a>
+                            <a href="/reports/" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-download"></i> Export Reports
+                            </a>
+                            <a href="/admin/settings" class="btn btn-outline-warning btn-sm">
+                                <i class="fas fa-cog"></i> System Settings
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Health -->
+                <div class="dhaniya-card card">
+                    <div class="card-header dhaniya-bg text-white">
+                        <h5><i class="fas fa-heartbeat"></i> System Health</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Database</span>
+                                <span class="badge bg-{{ 'success' if database_status == 'healthy' else 'warning' }}">{{ database_status.title() if database_status else 'Healthy' }}</span>
+                            </div>
+                            <div class="progress mt-1" style="height: 5px;">
+                                <div class="progress-bar bg-success" style="width: {{ database_uptime if database_uptime else '97' }}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>API Services</span>
+                                <span class="badge bg-{{ 'success' if api_status == 'running' else 'warning' }}">{{ api_status.title() if api_status else 'Running' }}</span>
+                            </div>
+                            <div class="progress mt-1" style="height: 5px;">
+                                <div class="progress-bar bg-success" style="width: {{ api_uptime if api_uptime else '99' }}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Storage</span>
+                                <span class="badge bg-info">{{ storage_usage if storage_usage else '68' }}% Used</span>
+                            </div>
+                            <div class="progress mt-1" style="height: 5px;">
+                                <div class="progress-bar bg-info" style="width: {{ storage_usage if storage_usage else '68' }}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Memory</span>
+                                <span class="badge bg-{{ 'success' if memory_status == 'normal' else 'warning' }}">{{ memory_status.title() if memory_status else 'Normal' }}</span>
+                            </div>
+                            <div class="progress mt-1" style="height: 5px;">
+                                <div class="progress-bar bg-success" style="width: {{ memory_usage if memory_usage else '72' }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Management Overview -->
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="dhaniya-card card">
+                    <div class="card-header dhaniya-bg text-white">
+                        <h5><i class="fas fa-users-cog"></i> User Management Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Recent Registrations ({{ user_overview.recent_registrations if user_overview else 0 }} this week)</h6>
+                                <div class="list-group list-group-flush">
+                                    {% if system_activity %}
+                                        {% for activity in system_activity %}
+                                            {% if activity.type == 'user_registered' %}
+                                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>{{ activity.message.split(': ')[1] if ': ' in activity.message else 'New User' }}</strong>
+                                                    <small class="text-muted d-block">{{ activity.date }}</small>
+                                                </div>
+                                                <span class="badge bg-success">Active</span>
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                    <div class="list-group-item text-center text-muted">
+                                        No recent registrations
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Role Distribution</h6>
+                                <div class="row text-center">
+                                    <div class="col-3">
+                                        <h4 class="text-danger">{{ role_stats.admin if role_stats else 0 }}</h4>
+                                        <small>Admins</small>
+                                    </div>
+                                    <div class="col-3">
+                                        <h4 class="text-primary">{{ role_stats.manager if role_stats else 0 }}</h4>
+                                        <small>Managers</small>
+                                    </div>
+                                    <div class="col-3">
+                                        <h4 class="text-success">{{ role_stats.developer if role_stats else 0 }}</h4>
+                                        <small>Developers</small>
+                                    </div>
+                                    <div class="col-3">
+                                        <h4 class="text-info">{{ role_stats.viewer if role_stats else 0 }}</h4>
+                                        <small>Viewers</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Admin Header Styling */
+.admin-header-card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.admin-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 2rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.admin-header h2 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.admin-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Ensure container doesn't overflow and respects layout */
+.content-wrapper {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Fixed height for progress indicators to prevent layout shift */
+.progress {
+    height: 5px !important;
+}
+
+/* Ensure cards don't break layout */
+.dhaniya-card {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Activity items with proper spacing */
+.activity-item:last-child {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+</style>
+{% endblock %}
+                    </div>
+                    <div class="stat-number text-primary">1,247</div>
+                    <div class="text-muted">Total Users</div>
+                    <small class="text-success">
+                        <i class="fas fa-arrow-up"></i> +12% this month
+                    </small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stat-icon text-success">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="stat-number text-success">89</div>
+                    <div class="text-muted">Active Projects</div>
+                    <small class="text-success">
+                        <i class="fas fa-arrow-up"></i> +5% this month
+                    </small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stat-icon text-warning">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="stat-number text-warning">3,456</div>
+                    <div class="text-muted">Total Tasks</div>
+                    <small class="text-info">
+                        <i class="fas fa-arrow-right"></i> +8% this month
+                    </small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stat-icon text-info">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <div class="stat-number text-info">156</div>
+                    <div class="text-muted">Open Tickets</div>
+                    <small class="text-danger">
+                        <i class="fas fa-arrow-down"></i> -3% this month
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <!-- System Performance Chart -->
+                <div class="chart-container">
+                    <h5><i class="fas fa-chart-line"></i> System Performance</h5>
+                    <canvas id="performanceChart" height="100"></canvas>
+                </div>
+
+                <!-- User Activity -->
+                <div class="chart-container">
+                    <h5><i class="fas fa-user-clock"></i> Recent User Activity</h5>
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>John Doe</strong> created a new project "Mobile App Redesign"
+                                <br><small class="text-muted">5 minutes ago</small>
+                            </div>
+                            <span class="badge bg-success">CREATE</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Sarah Wilson</strong> updated user permissions for 3 team members
+                                <br><small class="text-muted">12 minutes ago</small>
+                            </div>
+                            <span class="badge bg-warning">UPDATE</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Mike Johnson</strong> completed system backup
+                                <br><small class="text-muted">1 hour ago</small>
+                            </div>
+                            <span class="badge bg-info">SYSTEM</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>System</strong> automatically archived 15 completed projects
+                                <br><small class="text-muted">2 hours ago</small>
+                            </div>
+                            <span class="badge bg-secondary">AUTO</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <!-- System Status -->
+                <div class="chart-container">
+                    <h5><i class="fas fa-server"></i> System Status</h5>
+                    <div class="system-status mb-3">
+                        <div class="status-indicator status-healthy"></div>
+                        <div>
+                            <strong>Database</strong>
+                            <br><small class="text-muted">Online - 99.9% uptime</small>
+                        </div>
+                    </div>
+                    <div class="system-status mb-3">
+                        <div class="status-indicator status-healthy"></div>
+                        <div>
+                            <strong>API Services</strong>
+                            <br><small class="text-muted">All services operational</small>
+                        </div>
+                    </div>
+                    <div class="system-status mb-3">
+                        <div class="status-indicator status-warning"></div>
+                        <div>
+                            <strong>File Storage</strong>
+                            <br><small class="text-muted">85% capacity - Consider cleanup</small>
+                        </div>
+                    </div>
+                    <div class="system-status mb-3">
+                        <div class="status-indicator status-healthy"></div>
+                        <div>
+                            <strong>Email Service</strong>
+                            <br><small class="text-muted">Queue: 12 pending</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="chart-container">
+                    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="quick-action">
+                                <i class="fas fa-user-plus text-primary fs-3"></i>
+                                <div class="mt-2">
+                                    <strong>Add User</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="quick-action">
+                                <i class="fas fa-cog text-success fs-3"></i>
+                                <div class="mt-2">
+                                    <strong>Settings</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="quick-action">
+                                <i class="fas fa-shield-alt text-warning fs-3"></i>
+                                <div class="mt-2">
+                                    <strong>Security</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="quick-action">
+                                <i class="fas fa-database text-info fs-3"></i>
+                                <div class="mt-2">
+                                    <strong>Backup</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Alerts -->
+                <div class="chart-container">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Recent Alerts</h5>
+                    <div class="alert alert-warning alert-sm">
+                        <strong>Storage Warning:</strong> File storage is at 85% capacity
+                    </div>
+                    <div class="alert alert-info alert-sm">
+                        <strong>Maintenance:</strong> Scheduled maintenance in 3 days
+                    </div>
+                    <div class="alert alert-success alert-sm">
+                        <strong>Backup Complete:</strong> Daily backup completed successfully
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Performance Chart
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Server Load (%)',
+                    data: [65, 72, 68, 75, 82, 78, 85],
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    tension: 0.1
+                }, {
+                    label: 'Memory Usage (%)',
+                    data: [45, 52, 48, 55, 62, 58, 65],
+                    borderColor: '#fd7e14',
+                    backgroundColor: 'rgba(253, 126, 20, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

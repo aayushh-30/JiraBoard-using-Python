@@ -1,0 +1,626 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - Multi-Role Support - Jira Board{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+{% include 'admin_sidebar.html' %}
+
+<!-- Main Content -->
+<div class="content-wrapper">
+    <div class="container-fluid">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-users text-primary"></i>
+                    User Management
+                    <small class="text-muted">Multi-Role Support</small>
+                </h1>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </button>
+                    <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bulkActionsModal">
+                        <i class="fas fa-tasks"></i> Bulk Actions
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card dhaniya-card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Search Users</label>
+                            <input type="text" class="form-control" name="search" 
+                                   value="{{ request.args.get('search', '') }}" 
+                                   placeholder="Search by name, email...">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Primary Role</label>
+                            <select class="form-select" name="role">
+                                <option value="">All Roles</option>
+                                <option value="admin" {{ 'selected' if request.args.get('role') == 'admin' }}>Admin</option>
+                                <option value="manager" {{ 'selected' if request.args.get('role') == 'manager' }}>Manager</option>
+                                <option value="developer" {{ 'selected' if request.args.get('role') == 'developer' }}>Developer</option>
+                                <option value="client" {{ 'selected' if request.args.get('role') == 'client' }}>Client</option>
+                                <option value="viewer" {{ 'selected' if request.args.get('role') == 'viewer' }}>Viewer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="">All Status</option>
+                                <option value="active" {{ 'selected' if request.args.get('status') == 'active' }}>Active</option>
+                                <option value="pending" {{ 'selected' if request.args.get('status') == 'pending' }}>Pending</option>
+                                <option value="inactive" {{ 'selected' if request.args.get('status') == 'inactive' }}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Role Count</label>
+                            <select class="form-select" name="role_count">
+                                <option value="">All Users</option>
+                                <option value="single" {{ 'selected' if request.args.get('role_count') == 'single' }}>Single Role</option>
+                                <option value="multiple" {{ 'selected' if request.args.get('role_count') == 'multiple' }}>Multiple Roles</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Filter
+                                </button>
+                                <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Clear
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Statistics Summary -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card dhaniya-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie"></i>
+                        User Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <h3 class="text-primary mb-1">{{ users|length }}</h3>
+                                <p class="text-muted mb-0">👥 Total Users</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <h3 class="text-warning mb-1">{{ users|selectattr('status', 'equalto', 'pending')|list|length }}</h3>
+                                <p class="text-muted mb-0">⏳ Pending Approval</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="stat-item">
+                                <h3 class="text-danger mb-1">{{ role_stats.get('Admin', 0) if role_stats else 0 }}</h3>
+                                <p class="text-muted mb-0">👑 Admins</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="stat-item">
+                                <h3 class="text-info mb-1">{{ role_stats.get('Manager', 0) if role_stats else 0 }}</h3>
+                                <p class="text-muted mb-0">👔 Managers</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="stat-item">
+                                <h3 class="text-success mb-1">{{ role_stats.get('Developer', 0) if role_stats else 0 }}</h3>
+                                <p class="text-muted mb-0">💻 Developers</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card dhaniya-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i>
+                        Users List
+                    </h5>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="selectAll">
+                        <label class="form-check-label" for="selectAll">
+                            Select All
+                        </label>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if users %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="5%">
+                                            <input type="checkbox" id="headerCheckbox">
+                                        </th>
+                                        <th width="20%">User Details</th>
+                                        <th width="20%">Roles</th>
+                                        <th width="15%">Team</th>
+                                        <th width="10%">Status</th>
+                                        <th width="15%">Joined</th>
+                                        <th width="15%">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                        <tr data-user-id="{{ user.user_id }}">
+                                            <td>
+                                                <input type="checkbox" class="user-checkbox" 
+                                                       value="{{ user.user_id }}" name="selected_users">
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle me-3">
+                                                        {{ user.username[:2].upper() }}
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-weight-bold">{{ user.username }}</div>
+                                                        <small class="text-muted">{{ user.email }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="roles-container" id="roles-{{ user.user_id }}">
+                                                    <!-- Roles will be loaded by JavaScript -->
+                                                    <div class="spinner-border spinner-border-sm text-muted" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-light">
+                                                    {{ user.team_name if user.team_name else 'No Team' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-{{ 
+                                                    'success' if user.status == 'active' else
+                                                    'warning' if user.status == 'pending' else 'danger'
+                                                }} badge-pill">
+                                                    {{ user.status.title() if user.status else 'Unknown' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary btn-sm" 
+                                                            title="Manage Roles"
+                                                            onclick="manageUserRoles('{{ user.user_id }}', '{{ user.username }}')">
+                                                        <i class="fas fa-user-tag"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-secondary btn-sm" 
+                                                            title="Edit User"
+                                                            onclick="editUser('{{ user.user_id }}')">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    {% if user.status == 'active' %}
+                                                        <button class="btn btn-outline-warning btn-sm" 
+                                                                title="Deactivate User"
+                                                                onclick="toggleUserStatus('{{ user.user_id }}', 'inactive')">
+                                                            <i class="fas fa-pause"></i>
+                                                        </button>
+                                                    {% elif user.status == 'inactive' %}
+                                                        <button class="btn btn-outline-success btn-sm" 
+                                                                title="Activate User"
+                                                                onclick="toggleUserStatus('{{ user.user_id }}', 'active')">
+                                                            <i class="fas fa-play"></i>
+                                                        </button>
+                                                    {% endif %}
+                                                    <button class="btn btn-outline-danger btn-sm" 
+                                                            title="Delete User"
+                                                            onclick="deleteUser('{{ user.user_id }}')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Users Found</h5>
+                            <p class="text-muted">Try adjusting your filters or create a new user.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Role Management Modal -->
+<div class="modal fade" id="roleManagementModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-tag"></i>
+                    Manage Roles for <span id="target-username"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Current Roles</h6>
+                        <div id="current-roles-list" class="mb-3">
+                            <!-- Current roles will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Add Role</h6>
+                        <div class="mb-3">
+                            <select class="form-select" id="new-role-select">
+                                <option value="">Select a role to add...</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="developer">Developer</option>
+                                <option value="client">Client</option>
+                                <option value="viewer">Viewer</option>
+                            </select>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="make-primary-checkbox">
+                            <label class="form-check-label" for="make-primary-checkbox">
+                                Set as Primary Role
+                            </label>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="addRoleToUser()">
+                            <i class="fas fa-plus"></i> Add Role
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.roles-container .role-badge {
+    margin-right: 4px;
+    margin-bottom: 2px;
+    display: inline-block;
+    position: relative;
+}
+
+.role-badge.primary-role {
+    border: 2px solid #ffc107;
+}
+
+.role-badge .remove-role {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+}
+
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.badge-pill {
+    border-radius: 50rem;
+}
+
+.user-checkbox:checked + label {
+    background-color: #e3f2fd;
+}
+</style>
+
+<script>
+let currentUserId = null;
+
+// Load user roles on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadAllUserRoles();
+});
+
+async function loadAllUserRoles() {
+    const roleContainers = document.querySelectorAll('.roles-container');
+    let multiRoleCount = 0;
+    
+    for (const container of roleContainers) {
+        const userId = container.id.replace('roles-', '');
+        try {
+            const roles = await fetchUserRoles(userId);
+            displayUserRoles(container, roles, userId);
+            
+            if (roles.length > 1) {
+                multiRoleCount++;
+            }
+        } catch (error) {
+            container.innerHTML = '<span class="text-danger">Error loading roles</span>';
+        }
+    }
+    
+    // Update multi-role count
+    document.getElementById('multi-role-count').textContent = multiRoleCount;
+}
+
+async function fetchUserRoles(userId) {
+    const response = await fetch(`/admin/user-roles/${userId}`);
+    if (!response.ok) throw new Error('Failed to fetch roles');
+    const data = await response.json();
+    return data.roles || [];
+}
+
+function displayUserRoles(container, roles, userId) {
+    if (roles.length === 0) {
+        container.innerHTML = '<span class="text-muted">No roles assigned</span>';
+        return;
+    }
+    
+    let html = '';
+    roles.forEach(role => {
+        const isPrimary = role.is_primary;
+        const badgeClass = getRoleBadgeClass(role.role_name);
+        const roleIcon = getRoleIcon(role.role_name);
+        const primaryIndicator = isPrimary ? ' <i class="fas fa-star text-warning" title="Primary Role"></i>' : '';
+        
+        html += `
+            <span class="badge ${badgeClass} role-badge ${isPrimary ? 'primary-role' : ''}" 
+                  title="${isPrimary ? 'Primary Role' : 'Secondary Role'}">
+                ${roleIcon} ${role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)}${primaryIndicator}
+                <button class="remove-role" onclick="removeRoleFromUser('${userId}', '${role.role_id}')" 
+                        title="Remove Role">×</button>
+            </span>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function getRoleBadgeClass(roleName) {
+    const classes = {
+        'admin': 'bg-danger',
+        'manager': 'bg-warning text-dark',
+        'developer': 'bg-primary',
+        'client': 'bg-info',
+        'viewer': 'bg-secondary',
+        'pending': 'bg-light text-dark'
+    };
+    return classes[roleName] || 'bg-secondary';
+}
+
+function getRoleIcon(roleName) {
+    const icons = {
+        'admin': '👑',
+        'manager': '👔',
+        'developer': '💻',
+        'client': '🏢',
+        'viewer': '👁️',
+        'pending': '⏳'
+    };
+    return icons[roleName] || '👥';
+}
+
+function manageUserRoles(userId, username) {
+    currentUserId = userId;
+    document.getElementById('target-username').textContent = username;
+    
+    // Load current roles
+    loadCurrentRolesInModal(userId);
+    
+    // Show modal
+    new bootstrap.Modal(document.getElementById('roleManagementModal')).show();
+}
+
+async function loadCurrentRolesInModal(userId) {
+    const container = document.getElementById('current-roles-list');
+    container.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div>';
+    
+    try {
+        const roles = await fetchUserRoles(userId);
+        let html = '';
+        
+        if (roles.length === 0) {
+            html = '<p class="text-muted">No roles assigned</p>';
+        } else {
+            roles.forEach(role => {
+                const isPrimary = role.is_primary;
+                const badgeClass = getRoleBadgeClass(role.role_name);
+                const primaryText = isPrimary ? ' (Primary)' : '';
+                const primaryButton = isPrimary ? '' : `
+                    <button class="btn btn-sm btn-outline-warning ms-2" 
+                            onclick="setPrimaryRole('${userId}', '${role.role_id}')"
+                            title="Set as Primary Role">
+                        <i class="fas fa-star"></i>
+                    </button>
+                `;
+                
+                html += `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge ${badgeClass}">${role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)}${primaryText}</span>
+                        <div>
+                            ${primaryButton}
+                            <button class="btn btn-sm btn-outline-danger ms-1" 
+                                    onclick="removeRoleFromUser('${userId}', '${role.role_id}')"
+                                    title="Remove Role">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        container.innerHTML = html;
+    } catch (error) {
+        container.innerHTML = '<p class="text-danger">Error loading roles</p>';
+    }
+}
+
+async function addRoleToUser() {
+    const roleSelect = document.getElementById('new-role-select');
+    const makePrimary = document.getElementById('make-primary-checkbox').checked;
+    const roleName = roleSelect.value;
+    
+    if (!roleName) {
+        toastManager.show('Please select a role to add', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/add-user-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: currentUserId,
+                role_name: roleName,
+                is_primary: makePrimary
+            })
+        });
+        
+        if (response.ok) {
+            toastManager.show('Role added successfully', 'success');
+            roleSelect.value = '';
+            document.getElementById('make-primary-checkbox').checked = false;
+            loadCurrentRolesInModal(currentUserId);
+            loadAllUserRoles(); // Refresh the main table
+        } else {
+            const error = await response.json();
+            toastManager.show(error.message || 'Failed to add role', 'error');
+        }
+    } catch (error) {
+        toastManager.show('Error adding role', 'error');
+    }
+}
+
+async function removeRoleFromUser(userId, roleId) {
+    if (!confirm('Are you sure you want to remove this role?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/remove-user-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                role_id: roleId
+            })
+        });
+        
+        if (response.ok) {
+            toastManager.show('Role removed successfully', 'success');
+            if (currentUserId) {
+                loadCurrentRolesInModal(currentUserId);
+            }
+            loadAllUserRoles(); // Refresh the main table
+        } else {
+            const error = await response.json();
+            toastManager.show(error.message || 'Failed to remove role', 'error');
+        }
+    } catch (error) {
+        toastManager.show('Error removing role', 'error');
+    }
+}
+
+async function setPrimaryRole(userId, roleId) {
+    try {
+        const response = await fetch('/admin/set-primary-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                role_id: roleId
+            })
+        });
+        
+        if (response.ok) {
+            toastManager.show('Primary role updated successfully', 'success');
+            loadCurrentRolesInModal(currentUserId);
+            loadAllUserRoles(); // Refresh the main table
+        } else {
+            const error = await response.json();
+            toastManager.show(error.message || 'Failed to set primary role', 'error');
+        }
+    } catch (error) {
+        toastManager.show('Error setting primary role', 'error');
+    }
+}
+
+// Other existing functions...
+function toggleUserStatus(userId, newStatus) {
+    // Implementation for user status toggle
+    console.log('Toggle user status:', userId, newStatus);
+}
+
+function deleteUser(userId) {
+    // Implementation for user deletion
+    console.log('Delete user:', userId);
+}
+
+function editUser(userId) {
+    // Implementation for user editing
+    console.log('Edit user:', userId);
+}
+</script>
+</div>
+</div>
+{% endblock %}

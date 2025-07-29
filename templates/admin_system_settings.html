@@ -1,0 +1,820 @@
+{% extends "base.html" %}
+
+{% block title %}System Settings - Admin - Jira Board{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-cogs text-secondary"></i>
+                    System Settings
+                </h1>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <button type="button" class="btn btn-success" onclick="saveAllSettings()">
+                        <i class="fas fa-save"></i> Save All Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Settings Navigation -->
+        <div class="col-md-3">
+            <div class="card dhaniya-card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-list"></i>
+                        Settings Categories
+                    </h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="#general" class="list-group-item list-group-item-action active" 
+                       onclick="showSettingsSection('general')">
+                        <i class="fas fa-cog"></i> General Settings
+                    </a>
+                    <a href="#security" class="list-group-item list-group-item-action" 
+                       onclick="showSettingsSection('security')">
+                        <i class="fas fa-shield-alt"></i> Security
+                    </a>
+                    <a href="#email" class="list-group-item list-group-item-action" 
+                       onclick="showSettingsSection('email')">
+                        <i class="fas fa-envelope"></i> Email Settings
+                    </a>
+                    <a href="#notifications" class="list-group-item list-group-item-action" 
+                       onclick="showSettingsSection('notifications')">
+                        <i class="fas fa-bell"></i> Notifications
+                    </a>
+                    <a href="#database" class="list-group-item list-group-item-action" 
+                       onclick="showSettingsSection('database')">
+                        <i class="fas fa-database"></i> Database
+                    </a>
+                    <a href="#backup" class="list-group-item list-group-item-action" 
+                       onclick="showSettingsSection('backup')">
+                        <i class="fas fa-archive"></i> Backup & Recovery
+                    </a>
+                    <a href="#system" class="list-group-item list-group-item-action" 
+                       onclick="showSettingsSection('system')">
+                        <i class="fas fa-server"></i> System Maintenance
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="col-md-9">
+            <!-- General Settings -->
+            <div id="general-settings" class="settings-section">
+                <div class="card dhaniya-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cog"></i>
+                            General Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="generalSettingsForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Application Name</label>
+                                        <input type="text" class="form-control" name="app_name" 
+                                               value="{{ config.get('APP_NAME', 'Jira Board') }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Application URL</label>
+                                        <input type="url" class="form-control" name="app_url" 
+                                               value="{{ config.get('APP_URL', '') }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Timezone</label>
+                                        <select class="form-select" name="timezone">
+                                            <option value="UTC">UTC</option>
+                                            <option value="America/New_York">Eastern Time</option>
+                                            <option value="America/Chicago">Central Time</option>
+                                            <option value="America/Denver">Mountain Time</option>
+                                            <option value="America/Los_Angeles">Pacific Time</option>
+                                            <option value="Asia/Kolkata">India Standard Time</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Default Language</label>
+                                        <select class="form-select" name="language">
+                                            <option value="en">English</option>
+                                            <option value="es">Spanish</option>
+                                            <option value="fr">French</option>
+                                            <option value="de">German</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="registration_enabled" 
+                                           id="registrationEnabled" checked>
+                                    <label class="form-check-label" for="registrationEnabled">
+                                        Allow user registration
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="approval_required" 
+                                           id="approvalRequired" checked>
+                                    <label class="form-check-label" for="approvalRequired">
+                                        Require admin approval for new users
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div id="security-settings" class="settings-section" style="display: none;">
+                <div class="card dhaniya-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shield-alt"></i>
+                            Security Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="securitySettingsForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Session Timeout (minutes)</label>
+                                        <input type="number" class="form-control" name="session_timeout" 
+                                               value="60" min="15" max="480">
+                                        <small class="form-text text-muted">Time before user is automatically logged out</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Login Attempts</label>
+                                        <input type="number" class="form-control" name="max_login_attempts" 
+                                               value="5" min="3" max="10">
+                                        <small class="form-text text-muted">Number of failed attempts before account lockout</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Password Min Length</label>
+                                        <input type="number" class="form-control" name="password_min_length" 
+                                               value="8" min="6" max="20">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Password Expiry (days)</label>
+                                        <input type="number" class="form-control" name="password_expiry" 
+                                               value="90" min="30" max="365">
+                                        <small class="form-text text-muted">0 = never expires</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password Requirements</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="require_uppercase" 
+                                           id="requireUppercase" checked>
+                                    <label class="form-check-label" for="requireUppercase">
+                                        Require uppercase letters
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="require_lowercase" 
+                                           id="requireLowercase" checked>
+                                    <label class="form-check-label" for="requireLowercase">
+                                        Require lowercase letters
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="require_numbers" 
+                                           id="requireNumbers" checked>
+                                    <label class="form-check-label" for="requireNumbers">
+                                        Require numbers
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="require_special" 
+                                           id="requireSpecial">
+                                    <label class="form-check-label" for="requireSpecial">
+                                        Require special characters
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="two_factor_enabled" 
+                                           id="twoFactorEnabled">
+                                    <label class="form-check-label" for="twoFactorEnabled">
+                                        Enable Two-Factor Authentication
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Settings -->
+            <div id="email-settings" class="settings-section" style="display: none;">
+                <div class="card dhaniya-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-envelope"></i>
+                            Email Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="emailSettingsForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">SMTP Server</label>
+                                        <input type="text" class="form-control" name="smtp_server" 
+                                               placeholder="smtp.gmail.com">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">SMTP Port</label>
+                                        <input type="number" class="form-control" name="smtp_port" 
+                                               value="587">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Email Username</label>
+                                        <input type="email" class="form-control" name="email_username" 
+                                               placeholder="your-email@example.com">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Email Password</label>
+                                        <input type="password" class="form-control" name="email_password" 
+                                               placeholder="••••••••">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">From Name</label>
+                                        <input type="text" class="form-control" name="from_name" 
+                                               value="Jira Board System">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">From Email</label>
+                                        <input type="email" class="form-control" name="from_email" 
+                                               placeholder="noreply@example.com">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="use_tls" 
+                                           id="useTls" checked>
+                                    <label class="form-check-label" for="useTls">
+                                        Use TLS encryption
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-outline-primary" onclick="testEmailSettings()">
+                                    <i class="fas fa-paper-plane"></i> Send Test Email
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div id="notifications-settings" class="settings-section" style="display: none;">
+                <div class="card dhaniya-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bell"></i>
+                            Notification Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="notificationSettingsForm">
+                            <h6 class="mb-3">Email Notifications</h6>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="notify_new_user" 
+                                           id="notifyNewUser" checked>
+                                    <label class="form-check-label" for="notifyNewUser">
+                                        New user registrations
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="notify_task_assigned" 
+                                           id="notifyTaskAssigned" checked>
+                                    <label class="form-check-label" for="notifyTaskAssigned">
+                                        Task assignments
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="notify_task_completed" 
+                                           id="notifyTaskCompleted">
+                                    <label class="form-check-label" for="notifyTaskCompleted">
+                                        Task completions
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="notify_project_updates" 
+                                           id="notifyProjectUpdates">
+                                    <label class="form-check-label" for="notifyProjectUpdates">
+                                        Project updates
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <h6 class="mb-3">System Notifications</h6>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="notify_system_errors" 
+                                           id="notifySystemErrors" checked>
+                                    <label class="form-check-label" for="notifySystemErrors">
+                                        System errors and warnings
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="notify_security_events" 
+                                           id="notifySecurityEvents" checked>
+                                    <label class="form-check-label" for="notifySecurityEvents">
+                                        Security events
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="notify_backup_status" 
+                                           id="notifyBackupStatus">
+                                    <label class="form-check-label" for="notifyBackupStatus">
+                                        Backup status updates
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Settings -->
+            <div id="database-settings" class="settings-section" style="display: none;">
+                <div class="card dhaniya-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-database"></i>
+                            Database Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>Connection Status</h6>
+                                        <span class="badge badge-success">Connected</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>Database Size</h6>
+                                        <strong>{{ db_stats.size or 'Unknown' }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>Last Backup</h6>
+                                        <strong>{{ db_stats.last_backup or 'Never' }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <form id="databaseSettingsForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Connection Pool Size</label>
+                                        <input type="number" class="form-control" name="pool_size" 
+                                               value="20" min="5" max="100">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Query Timeout (seconds)</label>
+                                        <input type="number" class="form-control" name="query_timeout" 
+                                               value="30" min="10" max="300">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="enable_query_logging" 
+                                           id="enableQueryLogging">
+                                    <label class="form-check-label" for="enableQueryLogging">
+                                        Enable query logging (for debugging)
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <hr>
+                        <h6>Database Maintenance</h6>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" onclick="optimizeDatabase()">
+                                <i class="fas fa-cog"></i> Optimize Database
+                            </button>
+                            <button class="btn btn-outline-warning" onclick="analyzeDatabase()">
+                                <i class="fas fa-chart-line"></i> Analyze Tables
+                            </button>
+                            <button class="btn btn-outline-info" onclick="checkDatabaseIntegrity()">
+                                <i class="fas fa-check-circle"></i> Check Integrity
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backup Settings -->
+            <div id="backup-settings" class="settings-section" style="display: none;">
+                <div class="card dhaniya-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-archive"></i>
+                            Backup & Recovery
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="backupSettingsForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Backup Frequency</label>
+                                        <select class="form-select" name="backup_frequency">
+                                            <option value="daily">Daily</option>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly">Monthly</option>
+                                            <option value="manual">Manual Only</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Backup Time</label>
+                                        <input type="time" class="form-control" name="backup_time" 
+                                               value="02:00">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Retention Period (days)</label>
+                                        <input type="number" class="form-control" name="retention_days" 
+                                               value="30" min="7" max="365">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Backup Location</label>
+                                        <input type="text" class="form-control" name="backup_location" 
+                                               value="/backups" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="compress_backups" 
+                                           id="compressBackups" checked>
+                                    <label class="form-check-label" for="compressBackups">
+                                        Compress backup files
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <hr>
+                        <h6>Backup Actions</h6>
+                        <div class="d-flex gap-2 mb-3">
+                            <button class="btn btn-primary" onclick="createBackup()">
+                                <i class="fas fa-download"></i> Create Backup Now
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="viewBackups()">
+                                <i class="fas fa-list"></i> View Backup History
+                            </button>
+                        </div>
+                        
+                        <h6>Restore from Backup</h6>
+                        <div class="input-group">
+                            <input type="file" class="form-control" id="backupFile" accept=".sql,.gz">
+                            <button class="btn btn-outline-danger" onclick="restoreBackup()">
+                                <i class="fas fa-upload"></i> Restore
+                            </button>
+                        </div>
+                        <small class="form-text text-muted">
+                            Warning: Restoring will overwrite current data. This action cannot be undone.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Maintenance -->
+            <div id="system-settings" class="settings-section" style="display: none;">
+                <div class="card dhaniya-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-server"></i>
+                            System Maintenance
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>System Uptime</h6>
+                                        <strong>{{ system_stats.uptime or 'Unknown' }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>Memory Usage</h6>
+                                        <strong>{{ system_stats.memory_usage or 'Unknown' }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>Disk Usage</h6>
+                                        <strong>{{ system_stats.disk_usage or 'Unknown' }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h6>Cache Management</h6>
+                        <div class="d-flex gap-2 mb-4">
+                            <button class="btn btn-outline-warning" onclick="clearCache('application')">
+                                <i class="fas fa-trash"></i> Clear Application Cache
+                            </button>
+                            <button class="btn btn-outline-warning" onclick="clearCache('session')">
+                                <i class="fas fa-user-times"></i> Clear Session Cache
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="clearCache('all')">
+                                <i class="fas fa-broom"></i> Clear All Caches
+                            </button>
+                        </div>
+                        
+                        <h6>Log Management</h6>
+                        <div class="d-flex gap-2 mb-4">
+                            <button class="btn btn-outline-info" onclick="viewLogs('error')">
+                                <i class="fas fa-exclamation-triangle"></i> View Error Logs
+                            </button>
+                            <button class="btn btn-outline-info" onclick="viewLogs('access')">
+                                <i class="fas fa-eye"></i> View Access Logs
+                            </button>
+                            <button class="btn btn-outline-warning" onclick="rotateLogs()">
+                                <i class="fas fa-sync"></i> Rotate Logs
+                            </button>
+                        </div>
+                        
+                        <h6>System Actions</h6>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" onclick="systemHealthCheck()">
+                                <i class="fas fa-heartbeat"></i> Health Check
+                            </button>
+                            <button class="btn btn-outline-warning" onclick="restartServices()">
+                                <i class="fas fa-redo"></i> Restart Services
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="confirmSystemMaintenance()">
+                                <i class="fas fa-tools"></i> Maintenance Mode
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showSettingsSection(section) {
+    // Hide all sections
+    document.querySelectorAll('.settings-section').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Remove active class from all nav items
+    document.querySelectorAll('.list-group-item').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    // Show selected section
+    document.getElementById(section + '-settings').style.display = 'block';
+    
+    // Add active class to clicked nav item
+    event.target.classList.add('active');
+}
+
+function saveAllSettings() {
+    const forms = ['general', 'security', 'email', 'notifications', 'database', 'backup'];
+    const allSettings = {};
+    
+    forms.forEach(formName => {
+        const form = document.getElementById(formName + 'SettingsForm');
+        if (form) {
+            const formData = new FormData(form);
+            allSettings[formName] = Object.fromEntries(formData);
+        }
+    });
+    
+    fetch('/admin/system-settings', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(allSettings)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Settings saved successfully!');
+        } else {
+            alert('Error saving settings: ' + data.message);
+        }
+    });
+}
+
+function testEmailSettings() {
+    const form = document.getElementById('emailSettingsForm');
+    const formData = new FormData(form);
+    const emailSettings = Object.fromEntries(formData);
+    
+    fetch('/admin/test-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailSettings)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Test email sent successfully!');
+        } else {
+            alert('Error sending test email: ' + data.message);
+        }
+    });
+}
+
+function optimizeDatabase() {
+    if (confirm('This will optimize the database. Continue?')) {
+        fetch('/admin/database/optimize', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        });
+    }
+}
+
+function analyzeDatabase() {
+    fetch('/admin/database/analyze', { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    });
+}
+
+function checkDatabaseIntegrity() {
+    fetch('/admin/database/check-integrity', { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    });
+}
+
+function createBackup() {
+    if (confirm('Create a backup now?')) {
+        fetch('/admin/backup/create', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        });
+    }
+}
+
+function viewBackups() {
+    window.open('/admin/backup/history', '_blank');
+}
+
+function restoreBackup() {
+    const file = document.getElementById('backupFile').files[0];
+    if (!file) {
+        alert('Please select a backup file first.');
+        return;
+    }
+    
+    if (confirm('This will restore from backup and overwrite current data. This cannot be undone. Continue?')) {
+        const formData = new FormData();
+        formData.append('backup_file', file);
+        
+        fetch('/admin/backup/restore', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        });
+    }
+}
+
+function clearCache(type) {
+    if (confirm(`Clear ${type} cache?`)) {
+        fetch(`/admin/cache/clear/${type}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        });
+    }
+}
+
+function viewLogs(type) {
+    window.open(`/admin/logs/${type}`, '_blank');
+}
+
+function rotateLogs() {
+    if (confirm('Rotate log files?')) {
+        fetch('/admin/logs/rotate', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        });
+    }
+}
+
+function systemHealthCheck() {
+    fetch('/admin/system/health-check', { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    });
+}
+
+function restartServices() {
+    if (confirm('Restart system services? This may cause temporary downtime.')) {
+        fetch('/admin/system/restart-services', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        });
+    }
+}
+
+function confirmSystemMaintenance() {
+    if (confirm('Enable maintenance mode? This will prevent user access to the system.')) {
+        fetch('/admin/system/maintenance-mode', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        });
+    }
+}
+</script>
+{% endblock %}

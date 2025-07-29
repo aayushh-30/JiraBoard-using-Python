@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Create Subproject - Dhaniya{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+<div id="sidebar-wrapper" class="bg-light border-end sidebar">
+    <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="/dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="list-group-item list-group-item-action active" href="/projects">
+            <i class="fas fa-project-diagram"></i> Projects
+        </a>
+        <a class="list-group-item list-group-item-action" href="/teams">
+            <i class="fas fa-users"></i> Teams
+        </a>
+        
+        <a class="list-group-item list-group-item-action" href="/projects/goals">
+            <i class="fas fa-bullseye"></i> Goals
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="/profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a class="list-group-item list-group-item-action" href="#">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Button -->
+<button id="sidebar-toggle" class="btn dhaniya-bg text-white">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Main Content -->
+<div class="content-wrapper with-sidebar" id="content-wrapper">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="dhaniya-card card">
+                    <div class="card-header dhaniya-bg text-white">
+                        <h3>🌿 Create Subproject</h3>
+                        <small>Parent Project: {{ project.name }}</small>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    {{ form.name.label(class="form-label") }}
+                                    {{ form.name(class="form-control", placeholder="Enter subproject name") }}
+                                    {% for error in form.name.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.priority.label(class="form-label") }}
+                                    {{ form.priority(class="form-select") }}
+                                    {% for error in form.priority.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.description.label(class="form-label") }}
+                                {{ form.description(class="form-control", rows="4", placeholder="Describe the scope and objectives of this subproject") }}
+                                {% for error in form.description.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.start_date.label(class="form-label") }}
+                                    {{ form.start_date(class="form-control", type="date") }}
+                                    {% for error in form.start_date.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.end_date.label(class="form-label") }}
+                                    {{ form.end_date(class="form-control", type="date") }}
+                                    {% for error in form.end_date.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.budget.label(class="form-label") }}
+                                    {{ form.budget(class="form-control", min="0", step="0.01", placeholder="0.00") }}
+                                    {% for error in form.budget.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.status.label(class="form-label") }}
+                                    {{ form.status(class="form-select") }}
+                                    {% for error in form.status.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <!-- Subproject Lead Assignment -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.lead_developer.label(class="form-label") }}
+                                    {{ form.lead_developer(class="form-select") }}
+                                    {% for error in form.lead_developer.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Estimated Hours</label>
+                                    <input type="number" class="form-control" name="estimated_hours" 
+                                           min="0" step="0.5" placeholder="Total estimated hours">
+                                </div>
+                            </div>
+                            
+                            <!-- Project Context Info -->
+                            <div class="alert alert-info">
+                                <h6>📋 Parent Project Information</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Project:</strong> {{ project.name }}<br>
+                                        <strong>Status:</strong> {{ project.status.replace('_', ' ').title() if project.status else 'Active' }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Budget:</strong> ${{ "{:,.2f}".format(project.budget) if project.budget else '0.00' }}<br>
+                                        <strong>Progress:</strong> {{ project.progress or 0 }}%
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Deliverables Section -->
+                            <div class="mb-3">
+                                <label class="form-label">Key Deliverables</label>
+                                <textarea class="form-control" name="deliverables" rows="3" 
+                                          placeholder="List the main deliverables for this subproject (one per line)"></textarea>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="/projects/{{ project.project_id }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Back to Project
+                                </a>
+                                <button type="submit" class="btn dhaniya-bg text-white">
+                                    <i class="fas fa-plus"></i> Create Subproject
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar-wrapper');
+    const contentWrapper = document.getElementById('content-wrapper');
+    
+    if (sidebarToggle && sidebar && contentWrapper) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            contentWrapper.classList.toggle('sidebar-collapsed');
+        });
+    }
+});
+</script>
+{% endblock %}

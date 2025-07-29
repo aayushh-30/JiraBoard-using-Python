@@ -1,0 +1,31 @@
+<!-- Admin Sidebar -->
+<div id="sidebar-wrapper" class="bg-light border-end">
+    <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'dashboard.dashboard' else '' }}" href="/dashboard">
+            <i class="fas fa-crown"></i> Admin Dashboard
+        </a>
+        <a class="list-group-item list-group-item-action {{ 'active' if 'projects' in request.endpoint else '' }}" href="/projects/">
+            <i class="fas fa-project-diagram"></i> All Projects
+        </a>
+        <a class="list-group-item list-group-item-action {{ 'active' if 'teams' in request.endpoint else '' }}" href="/teams/">
+            <i class="fas fa-users"></i> Manage Teams
+        </a>
+        <a class="list-group-item list-group-item-action {{ 'active' if 'users' in request.endpoint else '' }}" href="/users/">
+            <i class="fas fa-user-cog"></i> User Management
+        </a>
+        <a class="list-group-item list-group-item-action {{ 'active' if 'reports' in request.endpoint else '' }}" href="/reports/">
+            <i class="fas fa-chart-line"></i> System Reports
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="/admin/settings">
+            <i class="fas fa-server"></i> System Settings
+        </a>
+        <a class="list-group-item list-group-item-action" href="/admin/audit">
+            <i class="fas fa-history"></i> Audit Logs
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="/profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+    </div>
+</div>

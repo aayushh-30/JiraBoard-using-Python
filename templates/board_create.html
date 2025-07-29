@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Board - Jira Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .main-content { margin-left: 280px; padding: 20px; }
+        .board-header { background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 25px; }
+        .board-form { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .template-card { border: 2px solid #dee2e6; border-radius: 10px; padding: 20px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s; }
+        .template-card:hover { border-color: #007bff; background-color: #e7f1ff; }
+        .template-card.selected { border-color: #007bff; background-color: #e7f1ff; }
+        .board-preview { background: #f8f9fa; border-radius: 10px; padding: 20px; margin-top: 20px; }
+        .column-preview { background: white; border-radius: 8px; padding: 15px; margin: 0 5px; min-height: 100px; border: 1px solid #dee2e6; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="board-header">
+            <h1><i class="fas fa-columns"></i> Create New Board</h1>
+            <p class="mb-0">Set up a new board for your project workflow</p>
+        </div>
+
+        <div class="board-form">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label fw-semibold") }}
+                            {{ form.name(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.project_id.label(class="form-label fw-semibold") }}
+                            {{ form.project_id(class="form-select") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    {{ form.description.label(class="form-label fw-semibold") }}
+                    {{ form.description(class="form-control", rows="3") }}
+                </div>
+
+                <div class="mb-4">
+                    <h5><i class="fas fa-th-large"></i> Board Template</h5>
+                    <p class="text-muted">Choose a template to start with or create a custom board</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="template-card" onclick="selectTemplate(this, 'kanban')">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-tasks text-primary fs-4 me-3"></i>
+                                    <h6 class="mb-0">Kanban Board</h6>
+                                </div>
+                                <p class="text-muted mb-2">Standard kanban with To Do, In Progress, and Done columns</p>
+                                <small class="text-info">Recommended for: Development teams</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="template-card" onclick="selectTemplate(this, 'scrum')">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-sync text-success fs-4 me-3"></i>
+                                    <h6 class="mb-0">Scrum Board</h6>
+                                </div>
+                                <p class="text-muted mb-2">Sprint-focused board with backlog, active sprint, and review</p>
+                                <small class="text-info">Recommended for: Agile teams</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="template-card" onclick="selectTemplate(this, 'support')">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-headset text-warning fs-4 me-3"></i>
+                                    <h6 class="mb-0">Support Board</h6>
+                                </div>
+                                <p class="text-muted mb-2">Ticket management with triage, in progress, and resolved</p>
+                                <small class="text-info">Recommended for: Support teams</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="template-card" onclick="selectTemplate(this, 'custom')">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-cog text-secondary fs-4 me-3"></i>
+                                    <h6 class="mb-0">Custom Board</h6>
+                                </div>
+                                <p class="text-muted mb-2">Start with a blank board and create your own columns</p>
+                                <small class="text-info">Recommended for: Custom workflows</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4" id="customColumns" style="display: none;">
+                    <h5><i class="fas fa-columns"></i> Board Columns</h5>
+                    <p class="text-muted">Define the columns for your board workflow</p>
+                    
+                    <div id="columnList">
+                        <div class="row mb-2">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Column Name" value="To Do">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option>Open</option>
+                                    <option>In Progress</option>
+                                    <option>Closed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="color" class="form-control form-control-color" value="#6c757d">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Column Name" value="In Progress">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option>Open</option>
+                                    <option selected>In Progress</option>
+                                    <option>Closed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="color" class="form-control form-control-color" value="#0d6efd">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Column Name" value="Done">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option>Open</option>
+                                    <option>In Progress</option>
+                                    <option selected>Closed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="color" class="form-control form-control-color" value="#198754">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="addColumn()">
+                        <i class="fas fa-plus"></i> Add Column
+                    </button>
+                </div>
+
+                <div class="board-preview">
+                    <h6><i class="fas fa-eye"></i> Board Preview</h6>
+                    <div class="row" id="boardPreview">
+                        <div class="col-md-4">
+                            <div class="column-preview">
+                                <h6 class="text-center text-muted">To Do</h6>
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-plus-circle fa-2x"></i>
+                                    <br><small>Drag tasks here</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="column-preview">
+                                <h6 class="text-center text-primary">In Progress</h6>
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-plus-circle fa-2x"></i>
+                                    <br><small>Drag tasks here</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="column-preview">
+                                <h6 class="text-center text-success">Done</h6>
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-plus-circle fa-2x"></i>
+                                    <br><small>Drag tasks here</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Create Board
+                    </button>
+                    <a href="{{ url_for('board.list_board') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Boards
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedTemplate = 'kanban';
+
+        function selectTemplate(card, template) {
+            // Remove selected class from all cards
+            document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+            // Add selected class to clicked card
+            card.classList.add('selected');
+            selectedTemplate = template;
+            
+            // Show/hide custom columns section
+            const customColumns = document.getElementById('customColumns');
+            if (template === 'custom') {
+                customColumns.style.display = 'block';
+            } else {
+                customColumns.style.display = 'none';
+                updatePreview(template);
+            }
+        }
+
+        function updatePreview(template) {
+            const preview = document.getElementById('boardPreview');
+            let columns = [];
+            
+            switch(template) {
+                case 'kanban':
+                    columns = [
+                        {name: 'To Do', color: '#6c757d'},
+                        {name: 'In Progress', color: '#0d6efd'},
+                        {name: 'Done', color: '#198754'}
+                    ];
+                    break;
+                case 'scrum':
+                    columns = [
+                        {name: 'Backlog', color: '#6c757d'},
+                        {name: 'Sprint Active', color: '#0d6efd'},
+                        {name: 'In Review', color: '#ffc107'},
+                        {name: 'Completed', color: '#198754'}
+                    ];
+                    break;
+                case 'support':
+                    columns = [
+                        {name: 'New Tickets', color: '#dc3545'},
+                        {name: 'In Progress', color: '#0d6efd'},
+                        {name: 'Waiting', color: '#ffc107'},
+                        {name: 'Resolved', color: '#198754'}
+                    ];
+                    break;
+            }
+            
+            preview.innerHTML = columns.map(col => `
+                <div class="col-md-${12/columns.length}">
+                    <div class="column-preview">
+                        <h6 class="text-center" style="color: ${col.color}">${col.name}</h6>
+                        <div class="text-center text-muted">
+                            <i class="fas fa-plus-circle fa-2x"></i>
+                            <br><small>Drag tasks here</small>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addColumn() {
+            const columnList = document.getElementById('columnList');
+            const newColumn = document.createElement('div');
+            newColumn.className = 'row mb-2';
+            newColumn.innerHTML = `
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Column Name">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select">
+                        <option>Open</option>
+                        <option>In Progress</option>
+                        <option>Closed</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="color" class="form-control form-control-color" value="#6c757d">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeColumn(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            columnList.appendChild(newColumn);
+        }
+
+        function removeColumn(button) {
+            button.closest('.row').remove();
+        }
+
+        // Initialize with kanban template selected
+        document.querySelector('.template-card').classList.add('selected');
+    </script>
+</body>
+</html>

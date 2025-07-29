@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Ticket Comment - Jira Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .main-content { margin-left: 280px; padding: 20px; }
+        .comment-header { background: linear-gradient(135deg, #fd7e14 0%, #dc3545 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 25px; }
+        .comment-container { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .ticket-info { background: #fff5f0; border-radius: 8px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #fd7e14; }
+        .comment-editor { border: 2px solid #e9ecef; border-radius: 8px; min-height: 200px; }
+        .toolbar { display: flex; gap: 5px; align-items: center; padding: 10px; border-bottom: 1px solid #e9ecef; background: #f8f9fa; border-radius: 8px 8px 0 0; }
+        .toolbar button { border: none; background: none; padding: 8px 10px; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+        .toolbar button:hover { background: #e9ecef; }
+        .editor-content { padding: 15px; min-height: 150px; outline: none; }
+        .response-templates { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .template-btn { border: 1px solid #dee2e6; background: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.9em; }
+        .template-btn:hover { background: #fd7e14; color: white; border-color: #fd7e14; }
+        .priority-indicator { padding: 6px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
+        .priority-low { background: #d1f5d3; color: #0d5c26; }
+        .priority-medium { background: #fff3cd; color: #856404; }
+        .priority-high { background: #f8d7da; color: #721c24; }
+        .priority-critical { background: #e2b6ff; color: #5a0080; }
+        .status-indicator { padding: 6px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
+        .status-open { background: #cce5ff; color: #004085; }
+        .status-progress { background: #fff3cd; color: #856404; }
+        .status-resolved { background: #d1f5d3; color: #0d5c26; }
+        .status-closed { background: #e2e3e5; color: #383d41; }
+        .internal-note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .customer-response { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 15px; border-radius: 8px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="comment-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-comment-medical"></i> Add Ticket Comment</h1>
+                    <p class="mb-0">Provide support, updates, and resolution details</p>
+                </div>
+                <a href="{{ url_for('ticket.view_ticket', id=ticket.id if ticket else 1) }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left"></i> Back to Ticket
+                </a>
+            </div>
+        </div>
+
+        <!-- Ticket Information -->
+        <div class="ticket-info">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-1">
+                        <i class="fas fa-ticket-alt"></i> 
+                        {{ ticket.title if ticket else "Application Login Issue" }}
+                    </h5>
+                    <p class="text-muted mb-2">{{ ticket.description if ticket else "User cannot access application after password reset. Getting 'Invalid credentials' error message." }}</p>
+                    <div class="d-flex gap-3 align-items-center">
+                        <span class="status-indicator status-open">
+                            <i class="fas fa-folder-open"></i> {{ ticket.status if ticket else "Open" }}
+                        </span>
+                        <span class="priority-indicator priority-high">
+                            <i class="fas fa-exclamation-triangle"></i> {{ ticket.priority if ticket else "High Priority" }}
+                        </span>
+                        <small class="text-muted">
+                            <i class="fas fa-user"></i> Customer: {{ ticket.customer if ticket else "John Doe" }}
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <small class="text-muted">
+                        <strong>Ticket ID:</strong> #{{ ticket.id if ticket else "HD-2024-001" }}<br>
+                        <strong>Created:</strong> {{ ticket.created_at if ticket else "Jan 20, 2024" }}<br>
+                        <strong>Category:</strong> {{ ticket.category if ticket else "Technical Issue" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" id="commentForm" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            
+            <div class="comment-container">
+                <h4><i class="fas fa-edit"></i> Comment Details</h4>
+                
+                <!-- Quick Response Templates -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Quick Response Templates</label>
+                    <div class="response-templates">
+                        <div class="template-btn" onclick="insertTemplate('investigating')">
+                            <i class="fas fa-search"></i> Investigating
+                        </div>
+                        <div class="template-btn" onclick="insertTemplate('need_info')">
+                            <i class="fas fa-question-circle"></i> Need More Info
+                        </div>
+                        <div class="template-btn" onclick="insertTemplate('resolved')">
+                            <i class="fas fa-check-circle"></i> Issue Resolved
+                        </div>
+                        <div class="template-btn" onclick="insertTemplate('escalated')">
+                            <i class="fas fa-arrow-up"></i> Escalated
+                        </div>
+                        <div class="template-btn" onclick="insertTemplate('workaround')">
+                            <i class="fas fa-tools"></i> Workaround
+                        </div>
+                        <div class="template-btn" onclick="insertTemplate('follow_up')">
+                            <i class="fas fa-clock"></i> Following Up
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Comment Type</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="comment_type" id="customer_response" value="customer_response" checked>
+                        <label class="btn btn-outline-success" for="customer_response">
+                            <i class="fas fa-user"></i> Customer Response
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="comment_type" id="internal_note" value="internal_note">
+                        <label class="btn btn-outline-warning" for="internal_note">
+                            <i class="fas fa-sticky-note"></i> Internal Note
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="comment_type" id="status_update" value="status_update">
+                        <label class="btn btn-outline-info" for="status_update">
+                            <i class="fas fa-info-circle"></i> Status Update
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="comment_type" id="resolution" value="resolution">
+                        <label class="btn btn-outline-primary" for="resolution">
+                            <i class="fas fa-lightbulb"></i> Resolution
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Comment Content</label>
+                    <div class="comment-editor">
+                        <div class="toolbar">
+                            <button type="button" onclick="formatText('bold')" title="Bold">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button type="button" onclick="formatText('italic')" title="Italic">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button type="button" onclick="formatText('underline')" title="Underline">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                            <div class="vr"></div>
+                            <button type="button" onclick="insertList('ul')" title="Bullet List">
+                                <i class="fas fa-list-ul"></i>
+                            </button>
+                            <button type="button" onclick="insertList('ol')" title="Numbered List">
+                                <i class="fas fa-list-ol"></i>
+                            </button>
+                            <div class="vr"></div>
+                            <button type="button" onclick="insertLink()" title="Insert Link">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button type="button" onclick="insertCode()" title="Code Block">
+                                <i class="fas fa-code"></i>
+                            </button>
+                            <div class="vr"></div>
+                            <button type="button" onclick="insertSolution()" title="Solution Steps">
+                                <i class="fas fa-list-check"></i>
+                            </button>
+                            <button type="button" onclick="togglePreview()" title="Preview">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="editor-content" contenteditable="true" id="commentEditor" 
+                             placeholder="Write your response or comment here...">
+                        </div>
+                    </div>
+                    <textarea name="comment_content" id="commentTextarea" style="display: none;"></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Time Spent</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="time_spent" placeholder="0" min="0" step="0.25">
+                                <span class="input-group-text">hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Next Action</label>
+                            <select class="form-select" name="next_action">
+                                <option value="">No action required</option>
+                                <option value="awaiting_customer">Awaiting customer response</option>
+                                <option value="awaiting_internal">Awaiting internal review</option>
+                                <option value="escalate">Escalate to next level</option>
+                                <option value="close">Ready to close ticket</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Change Section -->
+            <div class="comment-container">
+                <h5><i class="fas fa-exchange-alt"></i> Update Ticket Status (Optional)</h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">New Status</label>
+                            <select class="form-select" name="new_status">
+                                <option value="">Keep current status</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="waiting_customer">Waiting for Customer</option>
+                                <option value="waiting_internal">Waiting for Internal</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Priority</label>
+                            <select class="form-select" name="new_priority">
+                                <option value="">Keep current priority</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyCustomer" name="notify_customer" checked>
+                            <label class="form-check-label" for="notifyCustomer">
+                                <i class="fas fa-envelope"></i> Email customer about this update
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyTeam" name="notify_team">
+                            <label class="form-check-label" for="notifyTeam">
+                                <i class="fas fa-users"></i> Notify support team
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Attachments -->
+            <div class="comment-container">
+                <h5><i class="fas fa-paperclip"></i> Attachments</h5>
+                <div class="mb-3">
+                    <input type="file" class="form-control" name="attachments" multiple 
+                           accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt,.log">
+                    <small class="text-muted">Screenshots, logs, or documents to help resolve the issue</small>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex gap-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="markResolved" name="mark_resolved">
+                        <label class="form-check-label fw-semibold text-success" for="markResolved">
+                            <i class="fas fa-check-circle"></i> Mark as Resolved
+                        </label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="requireFollowUp" name="require_follow_up">
+                        <label class="form-check-label fw-semibold text-warning" for="requireFollowUp">
+                            <i class="fas fa-clock"></i> Require Follow-up
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+                        <i class="fas fa-save"></i> Save Draft
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-comment"></i> Add Comment
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Quick response templates
+        const templates = {
+            investigating: "Thank you for reporting this issue. I'm currently investigating the problem and will provide an update shortly.",
+            need_info: "To better assist you, could you please provide additional information about:\n\n• The exact steps you took\n• Any error messages you received\n• Your browser/device information\n\nThis will help us resolve the issue more quickly.",
+            resolved: "Good news! I've resolved the issue. The problem was [explain the cause] and I've [explain the solution].\n\nPlease test the functionality and let me know if you encounter any further issues.",
+            escalated: "I've escalated this issue to our technical team for further investigation. You can expect an update within [timeframe]. Thank you for your patience.",
+            workaround: "While we work on a permanent solution, here's a workaround you can use:\n\n1. [Step 1]\n2. [Step 2]\n3. [Step 3]\n\nThis should allow you to continue working while we fix the underlying issue.",
+            follow_up: "Following up on your ticket. Could you please confirm if the issue has been resolved? If you're still experiencing problems, please let me know."
+        };
+
+        function insertTemplate(templateKey) {
+            const editor = document.getElementById('commentEditor');
+            const template = templates[templateKey];
+            if (template) {
+                editor.innerHTML = template;
+                editor.focus();
+            }
+        }
+
+        // Rich text editor functions
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('commentEditor').focus();
+        }
+
+        function insertList(type) {
+            const command = type === 'ul' ? 'insertUnorderedList' : 'insertOrderedList';
+            document.execCommand(command, false, null);
+            document.getElementById('commentEditor').focus();
+        }
+
+        function insertLink() {
+            const url = prompt('Enter URL:');
+            if (url) {
+                document.execCommand('createLink', false, url);
+            }
+        }
+
+        function insertCode() {
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            const code = document.createElement('code');
+            code.style.background = '#f8f9fa';
+            code.style.padding = '2px 4px';
+            code.style.borderRadius = '3px';
+            
+            if (range.collapsed) {
+                code.innerHTML = 'code';
+            } else {
+                code.appendChild(range.extractContents());
+            }
+            
+            range.insertNode(code);
+        }
+
+        function insertSolution() {
+            const editor = document.getElementById('commentEditor');
+            const solutionTemplate = `
+                <strong>Solution Steps:</strong><br>
+                <ol>
+                    <li>Step 1: [Describe first step]</li>
+                    <li>Step 2: [Describe second step]</li>
+                    <li>Step 3: [Describe third step]</li>
+                </ol>
+                <br>
+                <strong>Result:</strong> [Expected outcome]<br>
+            `;
+            editor.innerHTML += solutionTemplate;
+            editor.focus();
+        }
+
+        function togglePreview() {
+            const editor = document.getElementById('commentEditor');
+            const isPreview = editor.contentEditable === 'false';
+            
+            if (isPreview) {
+                editor.contentEditable = 'true';
+                editor.style.background = '';
+            } else {
+                editor.contentEditable = 'false';
+                editor.style.background = '#f8f9fa';
+            }
+        }
+
+        function saveDraft() {
+            const content = document.getElementById('commentEditor').innerHTML;
+            localStorage.setItem('ticket_comment_draft', content);
+            alert('Draft saved locally');
+        }
+
+        // Comment type change handler
+        document.querySelectorAll('input[name="comment_type"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const editor = document.getElementById('commentEditor');
+                const value = this.value;
+                
+                // Update editor styling based on comment type
+                editor.className = 'editor-content';
+                if (value === 'internal_note') {
+                    editor.style.background = '#fff3cd';
+                } else if (value === 'customer_response') {
+                    editor.style.background = '#f0fdf4';
+                } else {
+                    editor.style.background = '';
+                }
+            });
+        });
+
+        // Form submission
+        document.getElementById('commentForm').addEventListener('submit', function(e) {
+            // Transfer rich text content to hidden textarea
+            const editorContent = document.getElementById('commentEditor').innerHTML;
+            document.getElementById('commentTextarea').value = editorContent;
+            
+            if (!editorContent.trim()) {
+                e.preventDefault();
+                alert('Please enter a comment');
+                return;
+            }
+        });
+
+        // Load draft on page load
+        window.addEventListener('load', function() {
+            const draft = localStorage.getItem('ticket_comment_draft');
+            if (draft && confirm('Found a saved draft. Would you like to restore it?')) {
+                document.getElementById('commentEditor').innerHTML = draft;
+            }
+        });
+
+        // Auto-check mark resolved when resolution comment type is selected
+        document.getElementById('resolution').addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('markResolved').checked = true;
+                document.querySelector('select[name="new_status"]').value = 'resolved';
+            }
+        });
+    </script>
+</body>
+</html>

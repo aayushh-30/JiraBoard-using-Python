@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Report - Jira Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .main-content { margin-left: 280px; padding: 20px; }
+        .report-header { background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 25px; }
+        .report-container { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .report-type-card { border: 2px solid #dee2e6; border-radius: 10px; padding: 20px; cursor: pointer; transition: all 0.3s; margin-bottom: 15px; }
+        .report-type-card:hover { border-color: #6f42c1; background: #f8f9ff; transform: translateY(-2px); }
+        .report-type-card.selected { border-color: #6f42c1; background: #f8f9ff; }
+        .chart-preview { background: #f8f9fa; border-radius: 8px; padding: 20px; height: 200px; display: flex; align-items: center; justify-content: center; border: 1px dashed #dee2e6; }
+        .filter-section { background: #f8f9fa; border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .metric-card { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; text-align: center; }
+        .report-preview { border: 2px dashed #6f42c1; border-radius: 10px; padding: 30px; text-align: center; background: #f8f9ff; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="report-header">
+            <h1><i class="fas fa-chart-bar"></i> Create Report</h1>
+            <p class="mb-0">Generate custom reports and analytics for your projects</p>
+        </div>
+
+        <form method="POST" id="reportForm">
+            {{ form.hidden_tag() }}
+            
+            <!-- Report Type Selection -->
+            <div class="report-container">
+                <h4><i class="fas fa-clipboard-list"></i> Report Type</h4>
+                <p class="text-muted mb-4">Choose the type of report you want to generate</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="report-type-card" data-type="project_summary" onclick="selectReportType(this)">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-project-diagram fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Project Summary</h5>
+                                    <p class="text-muted mb-0">Overview of project progress, tasks, and milestones</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="report-type-card" data-type="team_performance" onclick="selectReportType(this)">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-users fa-2x text-success me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Team Performance</h5>
+                                    <p class="text-muted mb-0">Team productivity, workload distribution, and efficiency</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="report-type-card" data-type="task_analytics" onclick="selectReportType(this)">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-tasks fa-2x text-warning me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Task Analytics</h5>
+                                    <p class="text-muted mb-0">Detailed task completion rates and time tracking</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="report-type-card" data-type="sprint_report" onclick="selectReportType(this)">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-running fa-2x text-info me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Sprint Report</h5>
+                                    <p class="text-muted mb-0">Sprint burndown, velocity, and retrospective data</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="report-type-card" data-type="bug_tracking" onclick="selectReportType(this)">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-bug fa-2x text-danger me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Bug Tracking</h5>
+                                    <p class="text-muted mb-0">Bug discovery, resolution time, and quality metrics</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="report-type-card" data-type="custom_report" onclick="selectReportType(this)">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-cog fa-2x text-secondary me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Custom Report</h5>
+                                    <p class="text-muted mb-0">Create a custom report with specific metrics</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="report_type" id="reportTypeInput">
+            </div>
+
+            <!-- Report Configuration -->
+            <div class="report-container">
+                <h4><i class="fas fa-cogs"></i> Report Configuration</h4>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label fw-semibold") }}
+                            {{ form.title(class="form-control", placeholder="Enter report title...") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Report Format</label>
+                            <select class="form-select" name="format">
+                                <option value="pdf">PDF Document</option>
+                                <option value="excel">Excel Spreadsheet</option>
+                                <option value="html">HTML Report</option>
+                                <option value="csv">CSV Data</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form.description.label(class="form-label fw-semibold") }}
+                    {{ form.description(class="form-control", rows="3", placeholder="Describe the purpose and scope of this report...") }}
+                </div>
+            </div>
+
+            <!-- Filters and Parameters -->
+            <div class="report-container">
+                <h4><i class="fas fa-filter"></i> Filters & Parameters</h4>
+                
+                <div class="filter-section">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Date Range</label>
+                            <select class="form-select" name="date_range">
+                                <option value="last_7_days">Last 7 days</option>
+                                <option value="last_30_days">Last 30 days</option>
+                                <option value="last_quarter">Last quarter</option>
+                                <option value="last_year">Last year</option>
+                                <option value="custom">Custom range</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Project</label>
+                            <select class="form-select" name="project_filter">
+                                <option value="all">All Projects</option>
+                                <option value="mobile_app">Mobile App Development</option>
+                                <option value="web_platform">Web Platform</option>
+                                <option value="api_service">API Service</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Team</label>
+                            <select class="form-select" name="team_filter">
+                                <option value="all">All Teams</option>
+                                <option value="frontend">Frontend Team</option>
+                                <option value="backend">Backend Team</option>
+                                <option value="qa">QA Team</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Status Filter</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="todo" id="statusTodo" checked>
+                                    <label class="form-check-label" for="statusTodo">To Do</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="inprogress" id="statusProgress" checked>
+                                    <label class="form-check-label" for="statusProgress">In Progress</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="done" id="statusDone" checked>
+                                    <label class="form-check-label" for="statusDone">Done</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Priority Filter</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="low" id="priorityLow" checked>
+                                    <label class="form-check-label" for="priorityLow">Low</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="medium" id="priorityMedium" checked>
+                                    <label class="form-check-label" for="priorityMedium">Medium</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="high" id="priorityHigh" checked>
+                                    <label class="form-check-label" for="priorityHigh">High</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="report-container">
+                <h4><i class="fas fa-eye"></i> Report Preview</h4>
+                
+                <div id="reportPreview" class="report-preview">
+                    <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                    <h5>Select a report type to see preview</h5>
+                    <p class="text-muted">Choose a report type above to see a preview of your report structure</p>
+                </div>
+
+                <div class="row mt-4" id="metricsPreview" style="display: none;">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h3 class="text-primary mb-1">24</h3>
+                            <small class="text-muted">Total Tasks</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h3 class="text-success mb-1">18</h3>
+                            <small class="text-muted">Completed</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h3 class="text-warning mb-1">4</h3>
+                            <small class="text-muted">In Progress</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h3 class="text-info mb-1">85%</h3>
+                            <small class="text-muted">Completion Rate</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Options -->
+            <div class="report-container">
+                <h4><i class="fas fa-calendar-alt"></i> Schedule & Delivery</h4>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Report Schedule</label>
+                        <select class="form-select" name="schedule">
+                            <option value="once">Generate once</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email Recipients</label>
+                        <input type="email" class="form-control" name="recipients" multiple placeholder="Enter email addresses separated by commas">
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="autoEmail" name="auto_email">
+                            <label class="form-check-label" for="autoEmail">
+                                <i class="fas fa-envelope me-1"></i>Automatically email report when generated
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="saveTemplate" name="save_template" checked>
+                            <label class="form-check-label" for="saveTemplate">
+                                <i class="fas fa-save me-1"></i>Save as template for future use
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-play"></i> Generate Report
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="previewReport()">
+                    <i class="fas fa-eye"></i> Preview
+                </button>
+                <button type="button" class="btn btn-outline-info" onclick="saveAsDraft()">
+                    <i class="fas fa-save"></i> Save Draft
+                </button>
+                <a href="{{ url_for('report.list_report') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-list"></i> All Reports
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedReportType = null;
+
+        function selectReportType(card) {
+            // Remove previous selection
+            document.querySelectorAll('.report-type-card').forEach(c => c.classList.remove('selected'));
+            
+            // Add selection to clicked card
+            card.classList.add('selected');
+            selectedReportType = card.dataset.type;
+            document.getElementById('reportTypeInput').value = selectedReportType;
+            
+            // Update preview
+            updatePreview(selectedReportType);
+        }
+
+        function updatePreview(reportType) {
+            const preview = document.getElementById('reportPreview');
+            const metrics = document.getElementById('metricsPreview');
+            
+            const previews = {
+                'project_summary': {
+                    title: 'Project Summary Report Preview',
+                    content: 'This report will include project timeline, milestone completion, resource allocation, and overall progress metrics.',
+                    icon: 'fas fa-project-diagram'
+                },
+                'team_performance': {
+                    title: 'Team Performance Report Preview',
+                    content: 'This report will analyze team productivity, task distribution, completion rates, and individual performance metrics.',
+                    icon: 'fas fa-users'
+                },
+                'task_analytics': {
+                    title: 'Task Analytics Report Preview',
+                    content: 'This report will provide detailed task completion statistics, time tracking data, and efficiency analysis.',
+                    icon: 'fas fa-tasks'
+                },
+                'sprint_report': {
+                    title: 'Sprint Report Preview',
+                    content: 'This report will show sprint burndown charts, velocity trends, and sprint retrospective data.',
+                    icon: 'fas fa-running'
+                },
+                'bug_tracking': {
+                    title: 'Bug Tracking Report Preview',
+                    content: 'This report will analyze bug discovery rates, resolution times, and quality assurance metrics.',
+                    icon: 'fas fa-bug'
+                },
+                'custom_report': {
+                    title: 'Custom Report Preview',
+                    content: 'This report will include custom metrics and data points based on your specific requirements.',
+                    icon: 'fas fa-cog'
+                }
+            };
+
+            if (previews[reportType]) {
+                const p = previews[reportType];
+                preview.innerHTML = `
+                    <i class="${p.icon} fa-3x text-primary mb-3"></i>
+                    <h5>${p.title}</h5>
+                    <p class="text-muted">${p.content}</p>
+                `;
+                metrics.style.display = 'flex';
+            }
+        }
+
+        function previewReport() {
+            if (!selectedReportType) {
+                alert('Please select a report type first');
+                return;
+            }
+            alert('Opening report preview in new window...');
+            // Here you would typically open a preview window or modal
+        }
+
+        function saveAsDraft() {
+            if (!selectedReportType) {
+                alert('Please select a report type first');
+                return;
+            }
+            alert('Report saved as draft successfully!');
+        }
+
+        // Form validation
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            if (!selectedReportType) {
+                e.preventDefault();
+                alert('Please select a report type');
+                return;
+            }
+            
+            const title = document.querySelector('input[name="title"]').value;
+            if (!title.trim()) {
+                e.preventDefault();
+                alert('Please enter a report title');
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

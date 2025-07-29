@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Attachment - Jira Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .main-content { margin-left: 280px; padding: 20px; }
+        .upload-header { background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 25px; }
+        .upload-container { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .file-drop-zone { border: 3px dashed #dee2e6; border-radius: 15px; padding: 50px 20px; text-align: center; background: #f8f9fa; transition: all 0.3s; cursor: pointer; }
+        .file-drop-zone:hover { border-color: #20c997; background: #d1ecf1; }
+        .file-drop-zone.dragover { border-color: #20c997; background: #d1ecf1; transform: scale(1.02); }
+        .file-preview { background: #f8f9fa; border-radius: 10px; padding: 15px; margin-bottom: 10px; border: 1px solid #dee2e6; }
+        .file-icon { font-size: 2rem; margin-bottom: 10px; }
+        .progress-bar { transition: width 0.3s ease; }
+        .attachment-guidelines { background: #e7f3ff; border-left: 4px solid #17a2b8; padding: 15px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="upload-header">
+            <h1><i class="fas fa-paperclip"></i> Upload Task Attachment</h1>
+            <p class="mb-0">Add files and documents to support your task</p>
+        </div>
+
+        <div class="upload-container">
+            <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-4">
+                    <h5><i class="fas fa-info-circle"></i> Task Information</h5>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6 class="mb-1">Fix payment gateway integration</h6>
+                            <p class="text-muted mb-2">Debug and resolve issues with Stripe payment processing timeout</p>
+                            <small class="text-muted">
+                                <i class="fas fa-project-diagram me-1"></i>Project: Mobile App Development •
+                                <i class="fas fa-user me-1"></i>Assigned to: John Doe •
+                                <i class="fas fa-calendar me-1"></i>Due: Jan 25, 2024
+                            </small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="badge bg-danger">High Priority</span>
+                            <br><span class="badge bg-warning mt-1">In Progress</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attachment-guidelines">
+                    <h6><i class="fas fa-exclamation-circle me-2"></i>Attachment Guidelines</h6>
+                    <ul class="mb-0 small">
+                        <li>Maximum file size: 50MB per file</li>
+                        <li>Supported formats: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, JPG, PNG, GIF, ZIP</li>
+                        <li>Maximum 10 files per upload</li>
+                        <li>Files will be scanned for viruses before upload</li>
+                    </ul>
+                </div>
+
+                <div class="mb-4">
+                    <h5><i class="fas fa-cloud-upload-alt"></i> File Upload</h5>
+                    
+                    <div class="file-drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                        <div class="file-icon text-muted">
+                            <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                        </div>
+                        <h5 class="mb-2">Drop files here or click to browse</h5>
+                        <p class="text-muted mb-0">
+                            Drag and drop your files here, or click to select files from your computer
+                        </p>
+                        <input type="file" id="fileInput" multiple class="d-none" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.zip">
+                    </div>
+                </div>
+
+                <div id="filePreviewContainer" class="mb-4" style="display: none;">
+                    <h6><i class="fas fa-files-o"></i> Selected Files</h6>
+                    <div id="filePreviewList"></div>
+                </div>
+
+                <div class="mb-4">
+                    {{ form.description.label(class="form-label fw-semibold") }}
+                    {{ form.description(class="form-control", rows="3", placeholder="Describe what these attachments contain and how they relate to the task...") }}
+                </div>
+
+                <div class="mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="notifyTeam" checked>
+                        <label class="form-check-label" for="notifyTeam">
+                            <i class="fas fa-bell me-1"></i>Notify team members about this attachment
+                        </label>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success" id="uploadBtn">
+                        <i class="fas fa-upload"></i> Upload Attachments
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="clearFiles()">
+                        <i class="fas fa-times"></i> Clear All
+                    </button>
+                    <a href="{{ url_for('task.detail_task', task_id=task_id if task_id else 1) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Task
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedFiles = [];
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('filePreviewContainer');
+        const previewList = document.getElementById('filePreviewList');
+
+        // File type icons mapping
+        const fileIcons = {
+            'pdf': 'fas fa-file-pdf text-danger',
+            'doc': 'fas fa-file-word text-primary',
+            'docx': 'fas fa-file-word text-primary',
+            'xls': 'fas fa-file-excel text-success',
+            'xlsx': 'fas fa-file-excel text-success',
+            'ppt': 'fas fa-file-powerpoint text-warning',
+            'pptx': 'fas fa-file-powerpoint text-warning',
+            'txt': 'fas fa-file-alt text-secondary',
+            'jpg': 'fas fa-file-image text-info',
+            'jpeg': 'fas fa-file-image text-info',
+            'png': 'fas fa-file-image text-info',
+            'gif': 'fas fa-file-image text-info',
+            'zip': 'fas fa-file-archive text-dark',
+            'default': 'fas fa-file text-muted'
+        };
+
+        // Drag and drop events
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (selectedFiles.length >= 10) {
+                    alert('Maximum 10 files allowed per upload');
+                    break;
+                }
+                
+                if (file.size > 50 * 1024 * 1024) {
+                    alert(`File "${file.name}" is too large. Maximum size is 50MB.`);
+                    continue;
+                }
+                
+                selectedFiles.push(file);
+                addFilePreview(file);
+            }
+            
+            if (selectedFiles.length > 0) {
+                previewContainer.style.display = 'block';
+            }
+        }
+
+        function addFilePreview(file) {
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const iconClass = fileIcons[fileExtension] || fileIcons['default'];
+            
+            const filePreview = document.createElement('div');
+            filePreview.className = 'file-preview';
+            filePreview.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="${iconClass} me-3 fs-4"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${file.name}</h6>
+                        <small class="text-muted">${formatFileSize(file.size)} • ${file.type || 'Unknown type'}</small>
+                        <div class="progress mt-2" style="height: 4px; display: none;">
+                            <div class="progress-bar bg-success" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeFile('${file.name}', this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            previewList.appendChild(filePreview);
+        }
+
+        function removeFile(fileName, button) {
+            selectedFiles = selectedFiles.filter(file => file.name !== fileName);
+            button.closest('.file-preview').remove();
+            
+            if (selectedFiles.length === 0) {
+                previewContainer.style.display = 'none';
+            }
+        }
+
+        function clearFiles() {
+            selectedFiles = [];
+            previewList.innerHTML = '';
+            previewContainer.style.display = 'none';
+            fileInput.value = '';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Form submission with upload progress
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (selectedFiles.length === 0) {
+                alert('Please select at least one file to upload');
+                return;
+            }
+
+            const uploadBtn = document.getElementById('uploadBtn');
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            uploadBtn.disabled = true;
+
+            // Simulate upload progress
+            const progressBars = document.querySelectorAll('.progress');
+            progressBars.forEach(bar => bar.style.display = 'block');
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+
+                document.querySelectorAll('.progress-bar').forEach(bar => {
+                    bar.style.width = progress + '%';
+                });
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    uploadBtn.innerHTML = '<i class="fas fa-check"></i> Upload Complete';
+                    uploadBtn.classList.remove('btn-success');
+                    uploadBtn.classList.add('btn-outline-success');
+                    
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('task.detail_task', task_id=task_id if task_id else 1) }}";
+                    }, 1500);
+                }
+            }, 200);
+        });
+    </script>
+</body>
+</html>

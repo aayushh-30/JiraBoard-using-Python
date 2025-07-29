@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Board Details - Jira Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/kanban.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-theme.css') }}" id="dark-theme-css" disabled>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .main-content { margin-left: 280px; padding: 20px; }
+        .board-header { background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%); color: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; }
+        .task-assignee { width: 24px; height: 24px; border-radius: 50%; margin-left: 5px; }
+        .column-stats { font-size: 0.9em; color: var(--kanban-text); }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="board-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-columns"></i> Mobile App Development Board</h1>
+                    <p class="mb-0">Track progress of mobile application development tasks</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <!-- Dark mode toggle -->
+                    <button class="btn btn-outline-light" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                        <i class="fas fa-moon" id="dark-mode-icon"></i>
+                    </button>
+                    <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                    <button class="btn btn-outline-light">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> Settings
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i> Edit Board</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-users"></i> Manage Members</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-download"></i> Export</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-archive"></i> Archive Board</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kanban Board -->
+        <div class="kanban-board">
+            <!-- To Do Column -->
+            <div class="kanban-column">
+                <div class="column-header">
+                    <h6 class="column-title">To Do</h6>
+                    <span class="task-count">5</span>
+                </div>
+                <div class="column-body">
+                
+                <div class="task-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="task-priority high">High</span>
+                        <small class="text-muted">#TASK-101</small>
+                    </div>
+                    <h6 class="task-title">Implement user authentication</h6>
+                    <p class="task-description">Create login/logout functionality with JWT tokens and session management</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar text-muted me-1"></i>
+                            <small class="text-muted">Due: Jan 25</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-comments text-muted me-1"></i>
+                            <small class="text-muted">3</small>
+                            <img src="https://via.placeholder.com/24" class="task-assignee" alt="Assignee">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-card" style="position: relative;">
+                    <div class="priority-indicator priority-medium"></div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-warning">Medium</span>
+                        <small class="text-muted">#TASK-102</small>
+                    </div>
+                    <h6 class="mb-2">Design user profile page</h6>
+                    <p class="text-muted small mb-3">Create wireframes and mockups for user profile interface</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar text-muted me-1"></i>
+                            <small class="text-muted">Due: Jan 28</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-comments text-muted me-1"></i>
+                            <small class="text-muted">1</small>
+                            <img src="https://via.placeholder.com/24" class="task-assignee" alt="Assignee">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-card" style="position: relative;">
+                    <div class="priority-indicator priority-low"></div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-success">Low</span>
+                        <small class="text-muted">#TASK-103</small>
+                    </div>
+                    <h6 class="mb-2">Update project documentation</h6>
+                    <p class="text-muted small mb-3">Update README and API documentation</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar text-muted me-1"></i>
+                            <small class="text-muted">Due: Feb 1</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-comments text-muted me-1"></i>
+                            <small class="text-muted">0</small>
+                            <img src="https://via.placeholder.com/24" class="task-assignee" alt="Assignee">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="add-task-btn" onclick="addTask('todo')">
+                    <i class="fas fa-plus"></i> Add a task
+                </div>
+            </div>
+
+            <!-- In Progress Column -->
+            <div class="kanban-column">
+                <div class="kanban-header">
+                    <h6><span class="badge bg-primary me-2">3</span>In Progress</h6>
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+                
+                <div class="task-card" style="position: relative;">
+                    <div class="priority-indicator priority-high"></div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-danger">High</span>
+                        <small class="text-muted">#TASK-098</small>
+                    </div>
+                    <h6 class="mb-2">Fix payment gateway integration</h6>
+                    <p class="text-muted small mb-3">Debug and fix issues with Stripe payment processing</p>
+                    <div class="mb-3">
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-primary" style="width: 75%"></div>
+                        </div>
+                        <small class="text-muted">75% complete</small>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar text-danger me-1"></i>
+                            <small class="text-danger">Due: Today</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-comments text-muted me-1"></i>
+                            <small class="text-muted">5</small>
+                            <img src="https://via.placeholder.com/24" class="task-assignee" alt="Assignee">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-card" style="position: relative;">
+                    <div class="priority-indicator priority-medium"></div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-warning">Medium</span>
+                        <small class="text-muted">#TASK-099</small>
+                    </div>
+                    <h6 class="mb-2">Database optimization</h6>
+                    <p class="text-muted small mb-3">Optimize slow queries and add proper indexing</p>
+                    <div class="mb-3">
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: 40%"></div>
+                        </div>
+                        <small class="text-muted">40% complete</small>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar text-muted me-1"></i>
+                            <small class="text-muted">Due: Jan 30</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-comments text-muted me-1"></i>
+                            <small class="text-muted">2</small>
+                            <img src="https://via.placeholder.com/24" class="task-assignee" alt="Assignee">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="add-task-btn" onclick="addTask('progress')">
+                    <i class="fas fa-plus"></i> Add a task
+                </div>
+            </div>
+
+            <!-- In Review Column -->
+            <div class="kanban-column">
+                <div class="kanban-header">
+                    <h6><span class="badge bg-info me-2">2</span>In Review</h6>
+                    <button class="btn btn-sm btn-outline-info">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+                
+                <div class="task-card" style="position: relative;">
+                    <div class="priority-indicator priority-medium"></div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-info">Review</span>
+                        <small class="text-muted">#TASK-095</small>
+                    </div>
+                    <h6 class="mb-2">User profile management</h6>
+                    <p class="text-muted small mb-3">Allow users to update their profile information and preferences</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-1"></i>
+                            <small class="text-success">Ready for review</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-comments text-muted me-1"></i>
+                            <small class="text-muted">1</small>
+                            <img src="https://via.placeholder.com/24" class="task-assignee" alt="Assignee">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-card" style="position: relative;">
+                    <div class="priority-indicator priority-high"></div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-info">Review</span>
+                        <small class="text-muted">#TASK-096</small>
+                    </div>
+                    <h6 class="mb-2">Security improvements</h6>
+                    <p class="text-muted small mb-3">Add input validation and sanitization for all forms</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-circle text-warning me-1"></i>
+                            <small class="text-warning">Changes requested</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-comments text-muted me-1"></i>
+                            <small class="text-muted">3</small>
+                            <img src="https://via.placeholder.com/24" class="task-assignee" alt="Assignee">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="add-task-btn" onclick="addTask('review')">
+                    <i class="fas fa-plus"></i> Add a task
+                </div>
+            </div>
+
+            <!-- Done Column -->
+            <div class="kanban-column">
+                <div class="kanban-header">
+                    <h6><span class="badge bg-success me-2">4</span>Done</h6>
+                    <button class="btn btn-sm btn-outline-success">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+                
+                <div class="task-card" style="position: relative;">
+                    <div class="priority-indicator priority-medium"></div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-success">Done</span>
+                        <small class="text-muted">#TASK-092</small>
+                    </div>
+                    <h6 class="mb-2">Setup project structure</h6>
+                    <p class="text-muted small mb-3">Initialize React Native project with navigation</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-1"></i>
+                            <small class="text-success">Completed: Jan 10</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-comments text-muted me-1"></i>
+                            <small class="text-muted">2</small>
+                            <img src="https://via.placeholder.com/24" class="task-assignee" alt="Assignee">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-card" style="position: relative;">
+                    <div class="priority-indicator priority-low"></div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-success">Done</span>
+                        <small class="text-muted">#TASK-093</small>
+                    </div>
+                    <h6 class="mb-2">Design system setup</h6>
+                    <p class="text-muted small mb-3">Create color palette, typography, and component library</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-1"></i>
+                            <small class="text-success">Completed: Jan 12</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-comments text-muted me-1"></i>
+                            <small class="text-muted">1</small>
+                            <img src="https://via.placeholder.com/24" class="task-assignee" alt="Assignee">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function addTask(column) {
+            // This would open a modal or form to add a new task
+            console.log('Adding task to:', column);
+        }
+
+        // Basic drag and drop functionality
+        document.querySelectorAll('.task-card').forEach(card => {
+            card.draggable = true;
+            
+            card.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', '');
+                this.style.opacity = '0.5';
+            });
+            
+            card.addEventListener('dragend', function(e) {
+                this.style.opacity = '1';
+            });
+        });
+
+        document.querySelectorAll('.kanban-column').forEach(column => {
+            column.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+            
+            column.addEventListener('drop', function(e) {
+                e.preventDefault();
+                // Implement task movement logic here
+                console.log('Task dropped in column');
+            });
+        });
+    </script>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

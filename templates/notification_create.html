@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Notification - Jira Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .main-content { margin-left: 280px; padding: 20px; }
+        .notification-header { background: linear-gradient(135deg, #17a2b8 0%, #6610f2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 25px; }
+        .notification-container { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .notification-type { border: 2px solid #dee2e6; border-radius: 10px; padding: 20px; cursor: pointer; transition: all 0.3s; margin-bottom: 15px; text-align: center; }
+        .notification-type:hover { border-color: #17a2b8; background: #f0f9ff; transform: translateY(-2px); }
+        .notification-type.selected { border-color: #17a2b8; background: #f0f9ff; }
+        .notification-icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .recipient-group { background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 10px; }
+        .preview-panel { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 20px; }
+        .notification-preview { background: white; border-left: 4px solid #17a2b8; padding: 15px; border-radius: 0 8px 8px 0; margin-bottom: 15px; }
+        .channel-option { display: flex; align-items: center; padding: 10px; border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s; }
+        .channel-option:hover { background: #f8f9fa; border-color: #17a2b8; }
+        .channel-option.selected { background: #f0f9ff; border-color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="notification-header">
+            <h1><i class="fas fa-bell"></i> Create Notification</h1>
+            <p class="mb-0">Send targeted notifications to users, teams, or entire organization</p>
+        </div>
+
+        <form method="POST" id="notificationForm">
+            {{ form.hidden_tag() }}
+            
+            <!-- Notification Type -->
+            <div class="notification-container">
+                <h4><i class="fas fa-tag"></i> Notification Type</h4>
+                <p class="text-muted mb-4">Choose the type of notification you want to send</p>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="notification-type" data-type="announcement" onclick="selectNotificationType(this)">
+                            <i class="fas fa-bullhorn text-primary notification-icon"></i>
+                            <h6>Announcement</h6>
+                            <small class="text-muted">General company or project announcements</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="notification-type" data-type="alert" onclick="selectNotificationType(this)">
+                            <i class="fas fa-exclamation-triangle text-warning notification-icon"></i>
+                            <h6>Alert</h6>
+                            <small class="text-muted">Important alerts requiring immediate attention</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="notification-type" data-type="reminder" onclick="selectNotificationType(this)">
+                            <i class="fas fa-clock text-info notification-icon"></i>
+                            <h6>Reminder</h6>
+                            <small class="text-muted">Task deadlines and meeting reminders</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="notification-type" data-type="update" onclick="selectNotificationType(this)">
+                            <i class="fas fa-sync text-success notification-icon"></i>
+                            <h6>Update</h6>
+                            <small class="text-muted">Project or system status updates</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="notification-type" data-type="welcome" onclick="selectNotificationType(this)">
+                            <i class="fas fa-handshake text-purple notification-icon"></i>
+                            <h6>Welcome</h6>
+                            <small class="text-muted">Welcome messages for new team members</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="notification-type" data-type="custom" onclick="selectNotificationType(this)">
+                            <i class="fas fa-cog text-secondary notification-icon"></i>
+                            <h6>Custom</h6>
+                            <small class="text-muted">Custom notification with specific settings</small>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="notification_type" id="notificationTypeInput">
+            </div>
+
+            <!-- Message Content -->
+            <div class="notification-container">
+                <h4><i class="fas fa-edit"></i> Message Content</h4>
+                
+                <div class="mb-3">
+                    {{ form.title.label(class="form-label fw-semibold") }}
+                    {{ form.title(class="form-control", placeholder="Enter notification title (max 100 characters)...") }}
+                    <div class="form-text">Keep titles concise and descriptive</div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form.message.label(class="form-label fw-semibold") }}
+                    {{ form.message(class="form-control", rows="4", placeholder="Write your notification message here...") }}
+                    <div class="form-text">
+                        <span id="charCount">0</span>/500 characters • 
+                        <a href="#" onclick="insertVariable('{user_name}')">Insert {user_name}</a> • 
+                        <a href="#" onclick="insertVariable('{project_name}')">Insert {project_name}</a> • 
+                        <a href="#" onclick="insertVariable('{due_date}')">Insert {due_date}</a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Priority Level</label>
+                        <select class="form-select" name="priority">
+                            <option value="low">Low - General information</option>
+                            <option value="medium" selected>Medium - Standard notification</option>
+                            <option value="high">High - Important update</option>
+                            <option value="urgent">Urgent - Requires immediate action</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Action Button (Optional)</label>
+                        <input type="text" class="form-control" name="action_text" placeholder="e.g., View Task, Join Meeting">
+                        <input type="url" class="form-control mt-2" name="action_url" placeholder="https://example.com/action">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recipients -->
+            <div class="notification-container">
+                <h4><i class="fas fa-users"></i> Recipients</h4>
+                <p class="text-muted mb-4">Choose who should receive this notification</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Recipient Groups</h6>
+                        
+                        <div class="recipient-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="allUsers" name="recipients[]" value="all_users">
+                                <label class="form-check-label fw-semibold" for="allUsers">
+                                    <i class="fas fa-globe me-2"></i>All Users (245 members)
+                                </label>
+                                <div class="form-text">Send to everyone in the organization</div>
+                            </div>
+                        </div>
+
+                        <div class="recipient-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="projectTeams" name="recipients[]" value="project_teams">
+                                <label class="form-check-label fw-semibold" for="projectTeams">
+                                    <i class="fas fa-project-diagram me-2"></i>Active Project Teams
+                                </label>
+                                <div class="form-text">Members of currently active projects</div>
+                            </div>
+                        </div>
+
+                        <div class="recipient-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="managers" name="recipients[]" value="managers">
+                                <label class="form-check-label fw-semibold" for="managers">
+                                    <i class="fas fa-user-tie me-2"></i>Managers & Team Leads (18 members)
+                                </label>
+                                <div class="form-text">Management and leadership roles</div>
+                            </div>
+                        </div>
+
+                        <div class="recipient-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="developers" name="recipients[]" value="developers">
+                                <label class="form-check-label fw-semibold" for="developers">
+                                    <i class="fas fa-code me-2"></i>Developers (89 members)
+                                </label>
+                                <div class="form-text">Development team members</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6>Specific Projects</h6>
+                        <select class="form-select mb-3" name="project_filter" multiple size="5">
+                            <option value="mobile_app">Mobile App Development (24 members)</option>
+                            <option value="web_platform">Web Platform (31 members)</option>
+                            <option value="api_service">API Service (18 members)</option>
+                            <option value="data_analytics">Data Analytics (15 members)</option>
+                            <option value="devops">DevOps Infrastructure (12 members)</option>
+                        </select>
+                        
+                        <h6>Custom Recipients</h6>
+                        <textarea class="form-control" name="custom_recipients" rows="3" placeholder="Enter email addresses separated by commas&#10;john@example.com, sarah@example.com"></textarea>
+                        <div class="form-text">Add specific email addresses for targeted notifications</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Options -->
+            <div class="notification-container">
+                <h4><i class="fas fa-paper-plane"></i> Delivery Options</h4>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Notification Channels</h6>
+                        
+                        <div class="channel-option selected" data-channel="in_app">
+                            <i class="fas fa-bell text-primary me-3"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">In-App Notification</div>
+                                <small class="text-muted">Appears in the app notification center</small>
+                            </div>
+                            <input type="checkbox" name="channels[]" value="in_app" checked>
+                        </div>
+
+                        <div class="channel-option" data-channel="email">
+                            <i class="fas fa-envelope text-info me-3"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">Email Notification</div>
+                                <small class="text-muted">Send as email to recipients</small>
+                            </div>
+                            <input type="checkbox" name="channels[]" value="email">
+                        </div>
+
+                        <div class="channel-option" data-channel="slack">
+                            <i class="fab fa-slack text-success me-3"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">Slack Integration</div>
+                                <small class="text-muted">Post to Slack channels</small>
+                            </div>
+                            <input type="checkbox" name="channels[]" value="slack">
+                        </div>
+
+                        <div class="channel-option" data-channel="push">
+                            <i class="fas fa-mobile-alt text-warning me-3"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">Push Notification</div>
+                                <small class="text-muted">Mobile push notification</small>
+                            </div>
+                            <input type="checkbox" name="channels[]" value="push">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6>Scheduling</h6>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="schedule_type" id="sendNow" value="immediate" checked>
+                            <label class="form-check-label" for="sendNow">
+                                <i class="fas fa-play me-1"></i>Send immediately
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="schedule_type" id="scheduleDelivery" value="scheduled">
+                            <label class="form-check-label" for="scheduleDelivery">
+                                <i class="fas fa-calendar me-1"></i>Schedule for later
+                            </label>
+                        </div>
+
+                        <div id="scheduleOptions" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="date" class="form-control mb-2" name="schedule_date">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="time" class="form-control mb-2" name="schedule_time">
+                                </div>
+                            </div>
+                            <select class="form-select" name="timezone">
+                                <option value="UTC">UTC</option>
+                                <option value="EST">Eastern Time</option>
+                                <option value="PST">Pacific Time</option>
+                                <option value="GMT">GMT</option>
+                            </select>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="allowUnsubscribe" name="allow_unsubscribe" checked>
+                                <label class="form-check-label" for="allowUnsubscribe">
+                                    Allow recipients to unsubscribe
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="trackDelivery" name="track_delivery" checked>
+                                <label class="form-check-label" for="trackDelivery">
+                                    Track delivery and read status
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview -->
+            <div class="notification-container">
+                <h4><i class="fas fa-eye"></i> Preview</h4>
+                
+                <div class="preview-panel">
+                    <h6>Notification Preview</h6>
+                    <div class="notification-preview" id="notificationPreview">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-bell text-primary me-3 mt-1"></i>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1" id="previewTitle">Your notification title will appear here</h6>
+                                <p class="mb-2 text-muted" id="previewMessage">Your notification message will appear here with all the details...</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>Just now • 
+                                        <span id="previewPriority">Medium Priority</span>
+                                    </small>
+                                    <button type="button" class="btn btn-primary btn-sm" id="previewAction" style="display: none;">
+                                        Action Button
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            This preview shows how your notification will appear to recipients
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-paper-plane"></i> Send Notification
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+                    <i class="fas fa-save"></i> Save Draft
+                </button>
+                <button type="button" class="btn btn-outline-info" onclick="testNotification()">
+                    <i class="fas fa-vial"></i> Send Test
+                </button>
+                <a href="{{ url_for('notification.list_notification') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-list"></i> All Notifications
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedNotificationType = null;
+
+        function selectNotificationType(card) {
+            // Remove previous selection
+            document.querySelectorAll('.notification-type').forEach(c => c.classList.remove('selected'));
+            
+            // Add selection to clicked card
+            card.classList.add('selected');
+            selectedNotificationType = card.dataset.type;
+            document.getElementById('notificationTypeInput').value = selectedNotificationType;
+            
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const title = document.querySelector('input[name="title"]').value || 'Your notification title will appear here';
+            const message = document.querySelector('textarea[name="message"]').value || 'Your notification message will appear here with all the details...';
+            const priority = document.querySelector('select[name="priority"]').value;
+            const actionText = document.querySelector('input[name="action_text"]').value;
+
+            document.getElementById('previewTitle').textContent = title;
+            document.getElementById('previewMessage').textContent = message;
+            document.getElementById('previewPriority').textContent = priority.charAt(0).toUpperCase() + priority.slice(1) + ' Priority';
+            
+            const actionButton = document.getElementById('previewAction');
+            if (actionText) {
+                actionButton.textContent = actionText;
+                actionButton.style.display = 'block';
+            } else {
+                actionButton.style.display = 'none';
+            }
+        }
+
+        function insertVariable(variable) {
+            const messageTextarea = document.querySelector('textarea[name="message"]');
+            const cursorPos = messageTextarea.selectionStart;
+            const textBefore = messageTextarea.value.substring(0, cursorPos);
+            const textAfter = messageTextarea.value.substring(cursorPos);
+            
+            messageTextarea.value = textBefore + variable + textAfter;
+            messageTextarea.focus();
+            messageTextarea.setSelectionRange(cursorPos + variable.length, cursorPos + variable.length);
+            
+            updateCharCount();
+            updatePreview();
+        }
+
+        function updateCharCount() {
+            const message = document.querySelector('textarea[name="message"]').value;
+            document.getElementById('charCount').textContent = message.length;
+        }
+
+        function saveDraft() {
+            alert('Notification saved as draft!');
+        }
+
+        function testNotification() {
+            if (!selectedNotificationType) {
+                alert('Please select a notification type first');
+                return;
+            }
+            alert('Test notification sent to your account!');
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update preview when form fields change
+            document.querySelector('input[name="title"]').addEventListener('input', updatePreview);
+            document.querySelector('textarea[name="message"]').addEventListener('input', function() {
+                updateCharCount();
+                updatePreview();
+            });
+            document.querySelector('select[name="priority"]').addEventListener('change', updatePreview);
+            document.querySelector('input[name="action_text"]').addEventListener('input', updatePreview);
+
+            // Schedule options toggle
+            const scheduleRadios = document.querySelectorAll('input[name="schedule_type"]');
+            const scheduleOptions = document.getElementById('scheduleOptions');
+            
+            scheduleRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'scheduled') {
+                        scheduleOptions.style.display = 'block';
+                    } else {
+                        scheduleOptions.style.display = 'none';
+                    }
+                });
+            });
+
+            // Channel selection
+            document.querySelectorAll('.channel-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const checkbox = this.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                    
+                    if (checkbox.checked) {
+                        this.classList.add('selected');
+                    } else {
+                        this.classList.remove('selected');
+                    }
+                });
+            });
+
+            // Initialize character count
+            updateCharCount();
+        });
+
+        // Form validation
+        document.getElementById('notificationForm').addEventListener('submit', function(e) {
+            if (!selectedNotificationType) {
+                e.preventDefault();
+                alert('Please select a notification type');
+                return;
+            }
+            
+            const title = document.querySelector('input[name="title"]').value;
+            const message = document.querySelector('textarea[name="message"]').value;
+            
+            if (!title.trim()) {
+                e.preventDefault();
+                alert('Please enter a notification title');
+                return;
+            }
+            
+            if (!message.trim()) {
+                e.preventDefault();
+                alert('Please enter a notification message');
+                return;
+            }
+
+            const selectedChannels = document.querySelectorAll('input[name="channels[]"]:checked');
+            if (selectedChannels.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one notification channel');
+                return;
+            }
+
+            const selectedRecipients = document.querySelectorAll('input[name="recipients[]"]:checked');
+            const customRecipients = document.querySelector('textarea[name="custom_recipients"]').value;
+            
+            if (selectedRecipients.length === 0 && !customRecipients.trim()) {
+                e.preventDefault();
+                alert('Please select recipients or add custom email addresses');
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Client Dashboard - Dhaniya{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <div class="position-sticky pt-3">
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action active" href="/dashboard">
+                        <i class="fas fa-user-tie"></i> Client Dashboard
+                    </a>
+                    <a class="list-group-item list-group-item-action" href="/projects/">
+                        <i class="fas fa-project-diagram"></i> My Projects
+                    </a>
+                    <a class="list-group-item list-group-item-action" href="#">
+                        <i class="fas fa-ticket-alt"></i> Support Tickets
+                    </a>
+                    <hr class="mx-3">
+                    <a class="list-group-item list-group-item-action" href="/profile">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">👋 Welcome back, {{ user.username }}!</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">New Request</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Schedule Meeting</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Overview -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="dhaniya-card text-center">
+                        <div class="card-body">
+                            <div class="progress-circle mb-2" style="background: conic-gradient(var(--dhaniya-primary) 0deg 252deg, #e9ecef 252deg 360deg); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                <div style="background: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <strong class="text-primary">70%</strong>
+                                </div>
+                            </div>
+                            <p class="mb-0">Project Progress</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dhaniya-card text-center">
+                        <div class="card-body">
+                            <h3 class="text-success">5</h3>
+                            <p class="mb-0">Active Projects</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dhaniya-card text-center">
+                        <div class="card-body">
+                            <h3 class="text-warning">3</h3>
+                            <p class="mb-0">Pending Reviews</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dhaniya-card text-center">
+                        <div class="card-body">
+                            <h3 class="text-info">12</h3>
+                            <p class="mb-0">Support Tickets</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Projects -->
+            <div class="dhaniya-card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">📊 Active Projects</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th>Next Milestone</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>E-commerce Website</strong>
+                                            <br><small class="text-muted">Web Development</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" style="width: 75%"></div>
+                                        </div>
+                                        <small>75% Complete</small>
+                                    </td>
+                                    <td><span class="badge bg-success">On Track</span></td>
+                                    <td>Payment Integration</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View Details</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>Mobile App</strong>
+                                            <br><small class="text-muted">iOS & Android</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-warning" style="width: 45%"></div>
+                                        </div>
+                                        <small>45% Complete</small>
+                                    </td>
+                                    <td><span class="badge bg-warning">In Progress</span></td>
+                                    <td>UI Testing</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View Details</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Communications -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="dhaniya-card">
+                        <div class="card-body">
+                            <h5 class="card-title">💬 Recent Communications</h5>
+                            <div class="communication-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>Project Manager</strong>
+                                        <p class="mb-1">Weekly progress update for the e-commerce project</p>
+                                        <small class="text-muted">2 hours ago</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary">Reply</button>
+                                </div>
+                            </div>
+                            <div class="communication-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>Developer Team</strong>
+                                        <p class="mb-1">Mobile app testing phase completed</p>
+                                        <small class="text-muted">1 day ago</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary">View</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="dhaniya-card">
+                        <div class="card-body">
+                            <h5 class="card-title">🎯 Quick Actions</h5>
+                            <div class="d-grid gap-2">
+                                <a href="#" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Submit New Request
+                                </a>
+                                <a href="#" class="btn btn-outline-primary">
+                                    <i class="fas fa-calendar"></i> Schedule Meeting
+                                </a>
+                                <a href="#" class="btn btn-outline-secondary">
+                                    <i class="fas fa-file-download"></i> Download Reports
+                                </a>
+                                <a href="#" class="btn btn-outline-info">
+                                    <i class="fas fa-headset"></i> Contact Support
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.communication-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+</style>
+{% endblock %}

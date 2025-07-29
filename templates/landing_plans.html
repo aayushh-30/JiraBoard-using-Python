@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Plans - Dhaniya{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+<div id="sidebar-wrapper" class="bg-light border-end sidebar">
+    <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="/dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="list-group-item list-group-item-action" href="/projects">
+            <i class="fas fa-project-diagram"></i> Projects
+        </a>
+        <a class="list-group-item list-group-item-action" href="/teams">
+            <i class="fas fa-users"></i> Teams
+        </a>
+        <a class="list-group-item list-group-item-action active" href="/plans"></a>
+        <a class="list-group-item list-group-item-action" href="/projects/goals">
+            <i class="fas fa-bullseye"></i> Goals
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="/profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a class="list-group-item list-group-item-action" href="#">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Button -->
+<button id="sidebar-toggle" class="btn dhaniya-bg text-white">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Main Content -->
+<div class="content-wrapper with-sidebar" id="content-wrapper">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>📅 Plans</h1>
+            <div>
+                <a href="/plans/create" class="btn dhaniya-bg text-white">
+                    <i class="fas fa-plus"></i> New Plan
+                </a>
+                <a href="/plans/calendar" class="btn btn-outline-primary">
+                    <i class="fas fa-calendar"></i> Calendar View
+                </a>
+            </div>
+        </div>
+
+        <!-- Plans Navigation -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dhaniya-card card">
+                    <div class="card-body">
+                        <div class="btn-group w-100" role="group" aria-label="Plan views">
+                            <button type="button" class="btn dhaniya-bg text-white active" id="active-plans">
+                                Active Plans ({{ active_plans|length if active_plans else 0 }})
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" id="completed-plans">
+                                Completed Plans ({{ completed_plans|length if completed_plans else 0 }})
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="upcoming-plans">
+                                Upcoming Plans ({{ upcoming_plans|length if upcoming_plans else 0 }})
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Plans Section -->
+        <div id="active-section" class="plan-section">
+            {% if active_plans %}
+            <div class="card-grid">
+                {% for plan in active_plans %}
+                <div class="dhaniya-card card">
+                    <div class="card-header dhaniya-bg text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ plan.name }}</h5>
+                        <span class="badge bg-light text-dark">{{ plan.priority or 'Medium' }}</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ plan.description or 'No description available' }}</p>
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar"></i> 
+                                {{ plan.start_date.strftime('%b %d') if plan.start_date else 'No start date' }} - 
+                                {{ plan.end_date.strftime('%b %d, %Y') if plan.end_date else 'No end date' }}
+                            </small>
+                        </div>
+                        <div class="progress mb-3">
+                            <div class="progress-bar dhaniya-bg" role="progressbar" 
+                                 style="width: {{ plan.progress or 0 }}%" 
+                                 aria-valuenow="{{ plan.progress or 0 }}" 
+                                 aria-valuemin="0" aria-valuemax="100">
+                                {{ plan.progress or 0 }}%
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> {{ plan.assigned_to.full_name if plan.assigned_to else 'Unassigned' }}
+                            </small>
+                            <div>
+                                <a href="/plans/{{ plan.plan_id }}" class="btn btn-sm dhaniya-bg text-white">View</a>
+                                <a href="/plans/{{ plan.plan_id }}/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center">
+                <div class="dhaniya-card card p-5">
+                    <div class="card-body">
+                        <h3>📋 No Active Plans</h3>
+                        <p class="lead">Start planning your next big achievement!</p>
+                        <a href="/plans/create" class="btn dhaniya-bg text-white">
+                            <i class="fas fa-plus"></i> Create Your First Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Completed Plans Section (Hidden by default) -->
+        <div id="completed-section" class="plan-section" style="display: none;">
+            {% if completed_plans %}
+            <div class="card-grid">
+                {% for plan in completed_plans %}
+                <div class="dhaniya-card card opacity-75">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ plan.name }}</h5>
+                        <span class="badge bg-light text-dark">✓ Completed</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ plan.description or 'No description available' }}</p>
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar"></i> 
+                                Completed on {{ plan.completed_date.strftime('%b %d, %Y') if plan.completed_date else 'Unknown date' }}
+                            </small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> {{ plan.assigned_to.full_name if plan.assigned_to else 'Unassigned' }}
+                            </small>
+                            <a href="/plans/{{ plan.plan_id }}" class="btn btn-sm btn-outline-success">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center">
+                <div class="card p-5">
+                    <div class="card-body">
+                        <h3>🎉 No Completed Plans Yet</h3>
+                        <p class="lead">Complete some active plans to see them here!</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Upcoming Plans Section (Hidden by default) -->
+        <div id="upcoming-section" class="plan-section" style="display: none;">
+            {% if upcoming_plans %}
+            <div class="card-grid">
+                {% for plan in upcoming_plans %}
+                <div class="dhaniya-card card">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ plan.name }}</h5>
+                        <span class="badge bg-light text-dark">Upcoming</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ plan.description or 'No description available' }}</p>
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar"></i> 
+                                Starts {{ plan.start_date.strftime('%b %d, %Y') if plan.start_date else 'Date TBD' }}
+                            </small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> {{ plan.assigned_to.full_name if plan.assigned_to else 'Unassigned' }}
+                            </small>
+                            <div>
+                                <a href="/plans/{{ plan.plan_id }}" class="btn btn-sm btn-outline-info">View</a>
+                                <a href="/plans/{{ plan.plan_id }}/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center">
+                <div class="card p-5">
+                    <div class="card-body">
+                        <h3>🔮 No Upcoming Plans</h3>
+                        <p class="lead">Plan ahead for future success!</p>
+                        <a href="/plans/create" class="btn dhaniya-bg text-white">
+                            <i class="fas fa-plus"></i> Create Future Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar-wrapper');
+    const contentWrapper = document.getElementById('content-wrapper');
+    
+    if (sidebarToggle && sidebar && contentWrapper) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            contentWrapper.classList.toggle('sidebar-collapsed');
+        });
+    }
+
+    // Plan section switching
+    const activePlansBtn = document.getElementById('active-plans');
+    const completedPlansBtn = document.getElementById('completed-plans');
+    const upcomingPlansBtn = document.getElementById('upcoming-plans');
+    
+    const activeSection = document.getElementById('active-section');
+    const completedSection = document.getElementById('completed-section');
+    const upcomingSection = document.getElementById('upcoming-section');
+
+    function showSection(section, button) {
+        // Hide all sections
+        activeSection.style.display = 'none';
+        completedSection.style.display = 'none';
+        upcomingSection.style.display = 'none';
+        
+        // Remove active class from all buttons
+        activePlansBtn.classList.remove('dhaniya-bg', 'text-white');
+        activePlansBtn.classList.add('btn-outline-primary');
+        completedPlansBtn.classList.remove('dhaniya-bg', 'text-white');
+        completedPlansBtn.classList.add('btn-outline-primary');
+        upcomingPlansBtn.classList.remove('dhaniya-bg', 'text-white');
+        upcomingPlansBtn.classList.add('btn-outline-secondary');
+        
+        // Show selected section and activate button
+        section.style.display = 'block';
+        button.classList.remove('btn-outline-primary', 'btn-outline-secondary');
+        button.classList.add('dhaniya-bg', 'text-white');
+    }
+
+    activePlansBtn.addEventListener('click', function() {
+        showSection(activeSection, activePlansBtn);
+    });
+
+    completedPlansBtn.addEventListener('click', function() {
+        showSection(completedSection, completedPlansBtn);
+    });
+
+    upcomingPlansBtn.addEventListener('click', function() {
+        showSection(upcomingSection, upcomingPlansBtn);
+    });
+});
+</script>
+{% endblock %}

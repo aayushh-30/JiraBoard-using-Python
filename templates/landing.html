@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to Dhaniya{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="dhaniya-card card p-4 welcome-card">
+            <h1 class="display-5 text-success">🌿 Welcome to Dhaniya</h1>
+            <p class="lead text-dark">Your natural project management solution</p>
+            <hr class="my-3">
+            <p class="text-muted">Organize your projects and grow your productivity organically.</p>
+            
+            {% if current_user.is_authenticated %}
+                <a class="btn btn-lg dhaniya-bg text-white" href="/dashboard" role="button">Go to Dashboard</a>
+            {% else %}
+                <a class="btn btn-lg dhaniya-bg text-white me-3" href="/auth/login" role="button">Login</a>
+                <a class="btn btn-outline-success btn-lg" href="/auth/register" role="button">Join Dhaniya</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 text-center">
+        <div class="dhaniya-card card">
+            <div class="card-body">
+                <h5 class="card-title">🧄 Project Lehsun</h5>
+                <p class="card-text">Adding that extra punch to your security! Our authentication system packs more flavor than your favorite garlic bread.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 text-center">
+        <div class="dhaniya-card card">
+            <div class="card-body">
+                <h5 class="card-title">✨ Project Haldi</h5>
+                <p class="card-text">Golden turmeric dashboard - healing your data visualization woes! Pure gold for your analytics needs.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 text-center">
+        <div class="dhaniya-card card">
+            <div class="card-body">
+                <h5 class="card-title">�️ Project Mirchi</h5>
+                <p class="card-text">Hot and spicy notifications! Guaranteed to wake up your users faster than morning chai.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12 text-center">
+        <p class="text-muted">
+            <em>🌿 "Dhaniya mein hai sabka flavor!" - Fresh projects, natural growth, organic success!</em>
+        </p>
+    </div>
+</div>
+{% endblock %}

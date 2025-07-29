@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}{{ subproject.name }} - Subproject Details - Dhaniya{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+<div id="sidebar-wrapper" class="bg-light border-end sidebar">
+    <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="/dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="list-group-item list-group-item-action active" href="/projects">
+            <i class="fas fa-project-diagram"></i> Projects
+        </a>
+        <a class="list-group-item list-group-item-action" href="/teams">
+            <i class="fas fa-users"></i> Teams
+        </a>
+        
+        <a class="list-group-item list-group-item-action" href="/projects/goals">
+            <i class="fas fa-bullseye"></i> Goals
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="/profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a class="list-group-item list-group-item-action" href="#">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Button -->
+<button id="sidebar-toggle" class="btn dhaniya-bg text-white">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Main Content -->
+<div class="content-wrapper with-sidebar" id="content-wrapper">
+    <div class="container-fluid">
+        <!-- Subproject Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1>🌿 {{ subproject.name }}</h1>
+                <p class="text-muted">
+                    <i class="fas fa-project-diagram"></i> 
+                    {{ subproject.project.name if subproject.project else 'Unknown Project' }}
+                </p>
+            </div>
+            <div>
+                {% if current_user.role.role_name in ['admin', 'manager'] %}
+                <a href="/subprojects/{{ subproject.subproject_id }}/edit" class="btn btn-outline-primary">
+                    <i class="fas fa-edit"></i> Edit Subproject
+                </a>
+                {% endif %}
+                <a href="/subprojects/{{ subproject.subproject_id }}/tasks/create" class="btn dhaniya-bg text-white">
+                    <i class="fas fa-plus"></i> Add Task
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Subproject Info -->
+            <div class="col-md-4">
+                <div class="dhaniya-card card mb-4">
+                    <div class="card-header dhaniya-bg text-white">
+                        <h5>📊 Subproject Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Status:</strong><br>
+                            <span class="badge bg-{{ 'success' if subproject.status == 'completed' else 'info' if subproject.status == 'in_progress' else 'secondary' }}">
+                                {{ subproject.status.replace('_', ' ').title() if subproject.status else 'Planning' }}
+                            </span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Priority:</strong><br>
+                            <span class="badge bg-{{ 'danger' if subproject.priority == 'high' else 'warning' if subproject.priority == 'medium' else 'secondary' }}">
+                                {{ subproject.priority.title() if subproject.priority else 'Medium' }}
+                            </span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Start Date:</strong><br>
+                            <span class="text-muted">{{ subproject.start_date.strftime('%B %d, %Y') if subproject.start_date else 'Not set' }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>End Date:</strong><br>
+                            <span class="text-muted">{{ subproject.end_date.strftime('%B %d, %Y') if subproject.end_date else 'Not set' }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Budget:</strong><br>
+                            <span class="text-muted">${{ "{:,.2f}".format(subproject.budget) if subproject.budget else 'Not set' }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Progress:</strong><br>
+                            <div class="progress">
+                                <div class="progress-bar dhaniya-bg" role="progressbar" 
+                                     data-width="{{ subproject.progress or 0 }}"
+                                     aria-valuenow="{{ subproject.progress or 0 }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    {{ subproject.progress or 0 }}%
+                                </div>
+                            </div>
+                        </div>
+                        {% if subproject.lead_developer %}
+                        <div class="mb-3">
+                            <strong>Lead Developer:</strong><br>
+                            <span class="text-muted">{{ subproject.lead_developer.full_name }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Parent Project Info -->
+                {% if subproject.project %}
+                <div class="dhaniya-card card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5>🔗 Parent Project</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6><a href="/projects/{{ subproject.project.project_id }}" class="text-decoration-none">
+                            {{ subproject.project.name }}
+                        </a></h6>
+                        <p class="text-muted small">{{ subproject.project.description[:100] + '...' if subproject.project.description and subproject.project.description|length > 100 else subproject.project.description or 'No description' }}</p>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-info" data-width="{{ subproject.project.progress or 0 }}">
+                                {{ subproject.project.progress or 0 }}%
+                            </div>
+                        </div>
+                        <small class="text-muted">Project Progress</small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Tasks and Sprints -->
+            <div class="col-md-8">
+                <!-- Quick Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-primary">{{ tasks|length if tasks else 0 }}</h3>
+                                <small>Total Tasks</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-success">{{ completed_tasks|length if completed_tasks else 0 }}</h3>
+                                <small>Completed</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-info">{{ sprints|length if sprints else 0 }}</h3>
+                                <small>Sprints</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Section -->
+                <div class="dhaniya-card card mb-4">
+                    <div class="card-header dhaniya-bg text-white d-flex justify-content-between align-items-center">
+                        <h5>📋 Subproject Tasks</h5>
+                        <a href="/subprojects/{{ subproject.subproject_id }}/tasks/create" class="btn btn-light btn-sm">
+                            <i class="fas fa-plus"></i> Add Task
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if tasks %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Task</th>
+                                        <th>Assigned To</th>
+                                        <th>Status</th>
+                                        <th>Priority</th>
+                                        <th>Progress</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for task in tasks %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ task.title }}</strong><br>
+                                            <small class="text-muted">{{ task.description[:50] + '...' if task.description and task.description|length > 50 else task.description or '' }}</small>
+                                        </td>
+                                        <td>
+                                            {{ task.assigned_to.full_name if task.assigned_to else 'Unassigned' }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if task.status == 'completed' else 'warning' if task.status == 'in_progress' else 'secondary' }}">
+                                                {{ task.status.replace('_', ' ').title() if task.status else 'Not Set' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ 'danger' if task.priority == 'high' else 'warning' if task.priority == 'medium' else 'secondary' }}">
+                                                {{ task.priority.title() if task.priority else 'Low' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 15px;">
+                                                <div class="progress-bar bg-success" data-width="{{ task.progress or 0 }}">
+                                                    {{ task.progress or 0 }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <a href="/tasks/{{ task.task_id }}/edit" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">No tasks created yet.</p>
+                            <a href="/subprojects/{{ subproject.subproject_id }}/tasks/create" class="btn dhaniya-bg text-white">
+                                <i class="fas fa-plus"></i> Create First Task
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Sprints Section -->
+                {% if sprints %}
+                <div class="dhaniya-card card">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                        <h5>🏃‍♂️ Active Sprints</h5>
+                        <a href="/subprojects/{{ subproject.subproject_id }}/sprints/create" class="btn btn-light btn-sm">
+                            <i class="fas fa-plus"></i> New Sprint
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for sprint in sprints %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6><a href="/sprints/{{ sprint.sprint_id }}" class="text-decoration-none">{{ sprint.name }}</a></h6>
+                                        <p class="text-muted small">{{ sprint.description[:60] + '...' if sprint.description and sprint.description|length > 60 else sprint.description or 'No description' }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-{{ 'success' if sprint.status == 'completed' else 'warning' if sprint.status == 'active' else 'secondary' }}">
+                                                {{ sprint.status.title() if sprint.status else 'Planning' }}
+                                            </span>
+                                            <small class="text-muted">{{ sprint.end_date.strftime('%m/%d') if sprint.end_date else 'No end date' }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-4">
+            <a href="/projects/{{ subproject.project_id if subproject.project else '' }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Project
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar-wrapper');
+    const contentWrapper = document.getElementById('content-wrapper');
+    
+    if (sidebarToggle && sidebar && contentWrapper) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            contentWrapper.classList.toggle('sidebar-collapsed');
+        });
+    }
+});
+</script>
+{% endblock %}

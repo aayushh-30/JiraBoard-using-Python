@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Goals - Dhaniya{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+{% include 'admin_sidebar.html' %}
+
+<!-- Main Content -->
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>🎯 Dhaniya Goals</h1>
+            <a href="/goals/create" class="btn dhaniya-bg text-white">
+                <i class="fas fa-plus"></i> Plant New Goal
+            </a>
+        </div>
+
+        {% if goals %}
+        <!-- Goals Summary -->
+        <div class="row dashboard-card-row mb-4">
+            <div class="col-md-3">
+                <div class="dhaniya-card card">
+                    <div class="card-body text-center">
+                        <h5>🌱 Total Goals</h5>
+                        <div class="stats-number">{{ goals|length }}</div>
+                        <small class="text-muted">Growing targets</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dhaniya-card card">
+                    <div class="card-body text-center">
+                        <h5>🚀 In Progress</h5>
+                        <div class="stats-number">{{ goals|selectattr('status', 'equalto', 'In Progress')|list|length }}</div>
+                        <small class="text-muted">Active cultivation</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dhaniya-card card">
+                    <div class="card-body text-center">
+                        <h5>✅ On Track</h5>
+                        <div class="stats-number">{{ goals|selectattr('status', 'equalto', 'On Track')|list|length }}</div>
+                        <small class="text-muted">Healthy growth</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dhaniya-card card">
+                    <div class="card-body text-center">
+                        <h5>📊 Avg Progress</h5>
+                        <div class="stats-number">{{ (goals|sum(attribute='progress') / goals|length)|round }}%</div>
+                        <small class="text-muted">Overall harvest</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goals List -->
+        <div class="row">
+            {% for goal in goals %}
+            <div class="col-md-6 mb-4">
+                <div class="dhaniya-card card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ goal.title }}</h5>
+                        <span class="badge {% if goal.status == 'On Track' %}bg-success{% elif goal.status == 'In Progress' %}bg-primary{% else %}bg-secondary{% endif %}">
+                            {{ goal.status }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">{{ goal.description }}</p>
+                        
+                        <!-- Progress Bar -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <small class="text-muted">Progress</small>
+                                <small class="text-muted">{{ goal.progress }}%</small>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar dhaniya-bg" role="progressbar" 
+                                     style="width: {{ goal.progress }}%" 
+                                     aria-valuenow="{{ goal.progress }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Goal Details -->
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Category</small>
+                                <span class="badge bg-light text-dark">{{ goal.category }}</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Target Date</small>
+                                <small>{{ goal.target_date }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- No Goals State -->
+        <div class="text-center py-5">
+            <div class="dhaniya-card card mx-auto" style="max-width: 500px;">
+                <div class="card-body">
+                    <h3>🌱 No Goals Yet</h3>
+                    <p class="text-muted mb-4">Plant your first goal to start growing your success garden!</p>
+                    <a href="/goals/create" class="btn dhaniya-bg text-white">
+                        <i class="fas fa-plus"></i> Plant Your First Goal
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

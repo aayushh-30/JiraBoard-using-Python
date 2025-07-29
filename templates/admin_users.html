@@ -1,0 +1,857 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - Admin - Jira Board{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-users text-primary"></i>
+                    User Management
+                </h1>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </button>
+                    <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bulkActionsModal">
+                        <i class="fas fa-tasks"></i> Bulk Actions
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card dhaniya-card text-center">
+                <div class="card-body">
+                    <div class="text-primary">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                    <h5 class="mt-2">{{ users|length or 0 }}</h5>
+                    <small class="text-muted">Total Users</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card dhaniya-card text-center">
+                <div class="card-body">
+                    <div class="text-success">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <h5 class="mt-2">{{ users|selectattr('status', 'equalto', 'active')|list|length or 0 }}</h5>
+                    <small class="text-muted">Active</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card dhaniya-card text-center">
+                <div class="card-body">
+                    <div class="text-warning">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                    <h5 class="mt-2">{{ users|selectattr('status', 'equalto', 'pending')|list|length or 0 }}</h5>
+                    <small class="text-muted">Pending</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card dhaniya-card text-center">
+                <div class="card-body">
+                    <div class="text-danger">
+                        <i class="fas fa-ban fa-2x"></i>
+                    </div>
+                    <h5 class="mt-2">{{ users|selectattr('status', 'equalto', 'inactive')|list|length or 0 }}</h5>
+                    <small class="text-muted">Inactive</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card dhaniya-card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Search Users</label>
+                            <input type="text" class="form-control" name="search" 
+                                   value="{{ request.args.get('search', '') }}" 
+                                   placeholder="Search by name, email...">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Role</label>
+                            <select class="form-select" name="role">
+                                <option value="">All Roles</option>
+                                <option value="admin" {{ 'selected' if request.args.get('role') == 'admin' }}>Admin</option>
+                                <option value="manager" {{ 'selected' if request.args.get('role') == 'manager' }}>Manager</option>
+                                <option value="developer" {{ 'selected' if request.args.get('role') == 'developer' }}>Developer</option>
+                                <option value="client" {{ 'selected' if request.args.get('role') == 'client' }}>Client</option>
+                                <option value="viewer" {{ 'selected' if request.args.get('role') == 'viewer' }}>Viewer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="">All Status</option>
+                                <option value="active" {{ 'selected' if request.args.get('status') == 'active' }}>Active</option>
+                                <option value="pending" {{ 'selected' if request.args.get('status') == 'pending' }}>Pending</option>
+                                <option value="inactive" {{ 'selected' if request.args.get('status') == 'inactive' }}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Team</label>
+                            <select class="form-select" name="team">
+                                <option value="">All Teams</option>
+                                {% for team in teams %}
+                                    <option value="{{ team }}" {{ 'selected' if request.args.get('team') == team }}>
+                                        {{ team }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Filter
+                                </button>
+                                <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Clear
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card dhaniya-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i>
+                        Users List
+                    </h5>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="selectAll">
+                        <label class="form-check-label" for="selectAll">
+                            Select All
+                        </label>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if users %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="5%">
+                                            <input type="checkbox" id="headerCheckbox">
+                                        </th>
+                                        <th width="20%">User Details</th>
+                                        <th width="15%">Role</th>
+                                        <th width="15%">Team</th>
+                                        <th width="10%">Status</th>
+                                        <th width="15%">Joined</th>
+                                        <th width="10%">Last Login</th>
+                                        <th width="10%">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" class="user-checkbox" 
+                                                       value="{{ user[0] }}" name="selected_users">
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle me-3">
+                                                        {{ user[1][:2].upper() }}
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-weight-bold">{{ user[1] }}</div>
+                                                        <small class="text-muted">{{ user[2] }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="roles-container" id="user-roles-{{ user[0] }}">
+                                                    <!-- Roles will be loaded by JavaScript -->
+                                                    <div class="spinner-border spinner-border-sm" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </div>
+                                                <button class="btn btn-outline-info btn-sm mt-1" 
+                                                        onclick="manageUserRoles('{{ user[0] }}', '{{ user[1] }}')"
+                                                        title="Manage Roles">
+                                                    <i class="fas fa-user-tag"></i>
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-light">
+                                                    {{ user[5] or 'No Team' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-{{ 
+                                                    'success' if user[6] == 'active' else
+                                                    'warning' if user[6] == 'pending' else 'danger'
+                                                }} badge-pill">
+                                                    {{ user[6].title() if user[6] else 'Unknown' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ user[3].strftime('%Y-%m-%d') if user[3] else 'N/A' }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ user[7].strftime('%Y-%m-%d %H:%M') if user[7] else 'Never' }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary btn-sm" 
+                                                            title="Edit User"
+                                                            onclick="editUser({{ user[0] }})">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    {% if user[6] == 'active' %}
+                                                        <button class="btn btn-outline-warning btn-sm" 
+                                                                title="Deactivate User"
+                                                                onclick="toggleUserStatus({{ user[0] }}, 'inactive')">
+                                                            <i class="fas fa-pause"></i>
+                                                        </button>
+                                                    {% elif user[6] == 'inactive' %}
+                                                        <button class="btn btn-outline-success btn-sm" 
+                                                                title="Activate User"
+                                                                onclick="toggleUserStatus({{ user[0] }}, 'active')">
+                                                            <i class="fas fa-play"></i>
+                                                        </button>
+                                                    {% elif user[6] == 'pending' %}
+                                                        <button class="btn btn-outline-success btn-sm" 
+                                                                title="Approve User"
+                                                                onclick="toggleUserStatus({{ user[0] }}, 'active')">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    {% endif %}
+                                                    <button class="btn btn-outline-danger btn-sm" 
+                                                            title="Delete User"
+                                                            onclick="deleteUser({{ user[0] }})">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Users Found</h5>
+                            <p class="text-muted">Try adjusting your filters or create a new user.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create User Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus"></i>
+                    Create New User
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createUserForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Role *</label>
+                                <select class="form-select" name="role" required>
+                                    <option value="">Select Role</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="manager">Manager</option>
+                                    <option value="developer">Developer</option>
+                                    <option value="client">Client</option>
+                                    <option value="viewer">Viewer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Team</label>
+                                <select class="form-select" name="team">
+                                    <option value="">Select Team</option>
+                                    {% for team in teams %}
+                                        <option value="{{ team }}">{{ team }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Password *</label>
+                                <input type="password" class="form-control" name="password" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" name="status">
+                                    <option value="active">Active</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Create User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Actions Modal -->
+<div class="modal fade" id="bulkActionsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-tasks"></i>
+                    Bulk Actions
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Action</label>
+                    <select class="form-select" id="bulkAction">
+                        <option value="">Choose an action...</option>
+                        <option value="activate">Activate Selected Users</option>
+                        <option value="deactivate">Deactivate Selected Users</option>
+                        <option value="delete">Delete Selected Users</option>
+                        <option value="change_role">Change Role</option>
+                        <option value="change_team">Change Team</option>
+                    </select>
+                </div>
+                <div id="roleSelect" class="mb-3" style="display: none;">
+                    <label class="form-label">New Role</label>
+                    <select class="form-select" id="newRole">
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="developer">Developer</option>
+                        <option value="client">Client</option>
+                        <option value="viewer">Viewer</option>
+                    </select>
+                </div>
+                <div id="teamSelect" class="mb-3" style="display: none;">
+                    <label class="form-label">New Team</label>
+                    <select class="form-select" id="newTeam">
+                        {% for team in teams %}
+                            <option value="{{ team }}">{{ team }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="executeBulkAction()">
+                    <i class="fas fa-check"></i> Execute Action
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.badge-pill {
+    border-radius: 50rem;
+}
+
+.user-checkbox:checked + label {
+    background-color: #e3f2fd;
+}
+</style>
+
+<script>
+// Select all functionality
+document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+});
+
+document.getElementById('headerCheckbox').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+});
+
+// Bulk action type selection
+document.getElementById('bulkAction').addEventListener('change', function() {
+    const roleSelect = document.getElementById('roleSelect');
+    const teamSelect = document.getElementById('teamSelect');
+    
+    roleSelect.style.display = 'none';
+    teamSelect.style.display = 'none';
+    
+    if (this.value === 'change_role') {
+        roleSelect.style.display = 'block';
+    } else if (this.value === 'change_team') {
+        teamSelect.style.display = 'block';
+    }
+});
+
+// User action functions
+function toggleUserStatus(userId, newStatus) {
+    if (confirm(`Are you sure you want to ${newStatus} this user?`)) {
+        fetch(`/admin/user/${userId}/toggle-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        });
+    }
+}
+
+function deleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+        fetch(`/admin/user/${userId}/delete`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        });
+    }
+}
+
+function editUser(userId) {
+    // Implement edit user functionality
+    alert('Edit user functionality to be implemented');
+}
+
+function executeBulkAction() {
+    const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
+    const action = document.getElementById('bulkAction').value;
+    
+    if (selectedUsers.length === 0) {
+        alert('Please select at least one user.');
+        return;
+    }
+    
+    if (!action) {
+        alert('Please select an action.');
+        return;
+    }
+    
+    const actionData = { action: action, users: selectedUsers };
+    
+    if (action === 'change_role') {
+        actionData.new_role = document.getElementById('newRole').value;
+    } else if (action === 'change_team') {
+        actionData.new_team = document.getElementById('newTeam').value;
+    }
+    
+    if (confirm(`Are you sure you want to ${action} ${selectedUsers.length} user(s)?`)) {
+        fetch('/admin/bulk-actions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(actionData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        });
+    }
+}
+
+// Create user form submission
+document.getElementById('createUserForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const userData = Object.fromEntries(formData);
+    
+    fetch('/admin/create-user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    });
+});
+
+// Multi-role functionality
+document.addEventListener('DOMContentLoaded', function() {
+    loadAllUserRoles();
+});
+
+async function loadAllUserRoles() {
+    const containers = document.querySelectorAll('[id^="user-roles-"]');
+    
+    for (const container of containers) {
+        const userId = container.id.replace('user-roles-', '');
+        await loadUserRoles(userId);
+    }
+}
+
+async function loadUserRoles(userId) {
+    const container = document.getElementById(`user-roles-${userId}`);
+    try {
+        const response = await fetch(`/admin/user-roles/${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch roles');
+        
+        const data = await response.json();
+        const roles = data.roles || [];
+        
+        displayUserRoles(container, roles, userId);
+    } catch (error) {
+        container.innerHTML = '<span class="text-danger small">Error loading roles</span>';
+    }
+}
+
+function displayUserRoles(container, roles, userId) {
+    if (roles.length === 0) {
+        container.innerHTML = '<span class="text-muted small">No roles assigned</span>';
+        return;
+    }
+
+    let html = '';
+    roles.forEach(role => {
+        const isPrimary = role.is_primary;
+        const badgeClass = getRoleBadgeClass(role.role_name);
+        const primaryIndicator = isPrimary ? ' <i class="fas fa-star text-warning" title="Primary Role"></i>' : '';
+        
+        html += `
+            <span class="badge ${badgeClass} role-badge ${isPrimary ? 'primary-role' : ''} me-1 mb-1" 
+                  title="${isPrimary ? 'Primary Role' : 'Secondary Role'}">
+                ${role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)}${primaryIndicator}
+            </span>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function getRoleBadgeClass(roleName) {
+    const classes = {
+        'admin': 'bg-danger text-white',
+        'manager': 'bg-warning text-dark',
+        'developer': 'bg-primary text-white',
+        'client': 'bg-info text-white',
+        'viewer': 'bg-secondary text-white',
+        'pending': 'bg-light text-dark'
+    };
+    return classes[roleName] || 'bg-secondary text-white';
+}
+
+function manageUserRoles(userId, username) {
+    currentUserId = userId;
+    document.getElementById('target-username').textContent = username;
+    
+    // Load current roles in modal
+    loadCurrentRolesInModal(userId);
+    
+    // Show modal
+    new bootstrap.Modal(document.getElementById('roleManagementModal')).show();
+}
+
+async function loadCurrentRolesInModal(userId) {
+    const container = document.getElementById('current-roles-list');
+    container.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div>';
+    
+    try {
+        const response = await fetch(`/admin/user-roles/${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch roles');
+        
+        const data = await response.json();
+        const roles = data.roles || [];
+        
+        let html = '';
+        if (roles.length === 0) {
+            html = '<p class="text-muted">No roles assigned</p>';
+        } else {
+            roles.forEach(role => {
+                const isPrimary = role.is_primary;
+                const badgeClass = getRoleBadgeClass(role.role_name);
+                const primaryText = isPrimary ? ' (Primary)' : '';
+                const primaryButton = isPrimary ? '' : `
+                    <button class="btn btn-sm btn-outline-warning ms-2" 
+                            onclick="setPrimaryRole('${userId}', '${role.role_id}')"
+                            title="Set as Primary Role">
+                        <i class="fas fa-star"></i>
+                    </button>
+                `;
+                
+                html += `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge ${badgeClass}">${role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)}${primaryText}</span>
+                        <div>
+                            ${primaryButton}
+                            <button class="btn btn-sm btn-outline-danger ms-1" 
+                                    onclick="removeRoleFromUser('${userId}', '${role.role_id}')"
+                                    title="Remove Role">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        container.innerHTML = html;
+    } catch (error) {
+        container.innerHTML = '<p class="text-danger">Error loading roles</p>';
+    }
+}
+
+async function addRoleToUser() {
+    const roleSelect = document.getElementById('new-role-select');
+    const makePrimary = document.getElementById('make-primary-checkbox').checked;
+    const roleName = roleSelect.value;
+    
+    if (!roleName) {
+        alert('Please select a role to add');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/add-user-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: currentUserId,
+                role_name: roleName,
+                is_primary: makePrimary
+            })
+        });
+        
+        if (response.ok) {
+            alert('Role added successfully');
+            roleSelect.value = '';
+            document.getElementById('make-primary-checkbox').checked = false;
+            loadCurrentRolesInModal(currentUserId);
+            loadUserRoles(currentUserId); // Refresh main display
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to add role');
+        }
+    } catch (error) {
+        alert('Error adding role');
+    }
+}
+
+async function removeRoleFromUser(userId, roleId) {
+    if (!confirm('Are you sure you want to remove this role?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/remove-user-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                role_id: roleId
+            })
+        });
+        
+        if (response.ok) {
+            alert('Role removed successfully');
+            loadCurrentRolesInModal(currentUserId);
+            loadUserRoles(currentUserId); // Refresh main display
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to remove role');
+        }
+    } catch (error) {
+        alert('Error removing role');
+    }
+}
+
+async function setPrimaryRole(userId, roleId) {
+    try {
+        const response = await fetch('/admin/set-primary-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                role_id: roleId
+            })
+        });
+        
+        if (response.ok) {
+            alert('Primary role updated successfully');
+            loadCurrentRolesInModal(currentUserId);
+            loadUserRoles(currentUserId); // Refresh main display
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to set primary role');
+        }
+    } catch (error) {
+        alert('Error setting primary role');
+    }
+}
+
+let currentUserId = null;
+</script>
+
+<!-- Role Management Modal -->
+<div class="modal fade" id="roleManagementModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-tag"></i>
+                    Manage Roles for <span id="target-username"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Current Roles</h6>
+                        <div id="current-roles-list" class="mb-3">
+                            <!-- Current roles will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Add Role</h6>
+                        <div class="mb-3">
+                            <select class="form-select" id="new-role-select">
+                                <option value="">Select a role to add...</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="developer">Developer</option>
+                                <option value="client">Client</option>
+                                <option value="viewer">Viewer</option>
+                            </select>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="make-primary-checkbox">
+                            <label class="form-check-label" for="make-primary-checkbox">
+                                Set as Primary Role
+                            </label>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="addRoleToUser()">
+                            <i class="fas fa-plus"></i> Add Role
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.role-badge {
+    margin-right: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
+    position: relative;
+}
+
+.role-badge.primary-role {
+    border: 2px solid #ffc107;
+    font-weight: bold;
+}
+</script>
+{% endblock %}

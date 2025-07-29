@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Jira Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .main-content { margin-left: 280px; padding: 20px; }
+        .notifications-header { background: linear-gradient(135deg, #6610f2 0%, #e83e8c 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 25px; }
+        .notifications-container { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .notification-item { border-bottom: 1px solid #dee2e6; padding: 20px 0; transition: background-color 0.3s; }
+        .notification-item:last-child { border-bottom: none; }
+        .notification-item:hover { background-color: #f8f9fa; margin: 0 -20px; padding: 20px; border-radius: 8px; }
+        .notification-item.unread { border-left: 4px solid #6610f2; padding-left: 16px; background-color: #f8f9ff; }
+        .notification-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; }
+        .notification-actions { display: flex; gap: 8px; }
+        .filters-bar { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="notifications-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-bell"></i> Notifications</h1>
+                    <p class="mb-0">Stay updated with your project activities</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-light" onclick="markAllRead()">
+                        <i class="fas fa-check-double"></i> Mark All Read
+                    </button>
+                    <button class="btn btn-outline-light">
+                        <i class="fas fa-cog"></i> Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters-bar">
+            <div class="row">
+                <div class="col-md-3">
+                    <select class="form-select">
+                        <option>All Notifications</option>
+                        <option>Unread Only</option>
+                        <option>Read Only</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select">
+                        <option>All Types</option>
+                        <option>Task Updates</option>
+                        <option>Project Updates</option>
+                        <option>Comments</option>
+                        <option>Mentions</option>
+                        <option>System</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select">
+                        <option>Last 7 days</option>
+                        <option>Last 30 days</option>
+                        <option>Last 90 days</option>
+                        <option>All time</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search notifications...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notifications-container">
+            <!-- Unread Notification 1 -->
+            <div class="notification-item unread">
+                <div class="d-flex align-items-start">
+                    <div class="notification-icon" style="background: #e7f1ff; color: #0d6efd;">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Task Assigned: "Implement user authentication"</h6>
+                                <p class="text-muted mb-2">
+                                    <strong>Sarah Wilson</strong> assigned you a new task in <strong>Mobile App Project</strong>
+                                </p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>2 hours ago
+                                </small>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="markAsRead(this)">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unread Notification 2 -->
+            <div class="notification-item unread">
+                <div class="d-flex align-items-start">
+                    <div class="notification-icon" style="background: #fff3cd; color: #856404;">
+                        <i class="fas fa-comment"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">New comment on "Fix payment gateway bug"</h6>
+                                <p class="text-muted mb-2">
+                                    <strong>Mike Johnson</strong> commented: "I've identified the issue. The timeout value needs to be increased..."
+                                </p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>4 hours ago
+                                </small>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="markAsRead(this)">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unread Notification 3 -->
+            <div class="notification-item unread">
+                <div class="d-flex align-items-start">
+                    <div class="notification-icon" style="background: #d1ecf1; color: #0c5460;">
+                        <i class="fas fa-at"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">You were mentioned in "Database optimization"</h6>
+                                <p class="text-muted mb-2">
+                                    <strong>John Doe</strong> mentioned you: "@johndoe Could you review the indexing strategy?"
+                                </p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>6 hours ago
+                                </small>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="markAsRead(this)">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Read Notification 1 -->
+            <div class="notification-item">
+                <div class="d-flex align-items-start">
+                    <div class="notification-icon" style="background: #d1edff; color: #0969da;">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Project milestone reached: "Phase 1 Complete"</h6>
+                                <p class="text-muted mb-2">
+                                    <strong>Mobile App Project</strong> has reached the Phase 1 completion milestone
+                                </p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>1 day ago • <i class="fas fa-check-circle text-success me-1"></i>Read
+                                </small>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Read Notification 2 -->
+            <div class="notification-item">
+                <div class="d-flex align-items-start">
+                    <div class="notification-icon" style="background: #d4edda; color: #155724;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Task completed: "Setup project structure"</h6>
+                                <p class="text-muted mb-2">
+                                    <strong>Emily Davis</strong> marked the task as completed
+                                </p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>2 days ago • <i class="fas fa-check-circle text-success me-1"></i>Read
+                                </small>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Read Notification 3 -->
+            <div class="notification-item">
+                <div class="d-flex align-items-start">
+                    <div class="notification-icon" style="background: #f8d7da; color: #721c24;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Task overdue: "Update API documentation"</h6>
+                                <p class="text-muted mb-2">
+                                    This task was due yesterday and needs immediate attention
+                                </p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>3 days ago • <i class="fas fa-check-circle text-success me-1"></i>Read
+                                </small>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Notification -->
+            <div class="notification-item">
+                <div class="d-flex align-items-start">
+                    <div class="notification-icon" style="background: #e2e3e5; color: #495057;">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">System maintenance scheduled</h6>
+                                <p class="text-muted mb-2">
+                                    System maintenance is scheduled for this weekend from 2 AM to 6 AM EST
+                                </p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>1 week ago • <i class="fas fa-check-circle text-success me-1"></i>Read
+                                </small>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center py-4">
+                <p class="text-muted">Showing 8 of 24 notifications</p>
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function markAsRead(button) {
+            const notificationItem = button.closest('.notification-item');
+            notificationItem.classList.remove('unread');
+            
+            // Update the button to show it's read
+            button.innerHTML = '<i class="fas fa-check-circle text-success"></i>';
+            button.disabled = true;
+            
+            // Add read indicator to timestamp
+            const timestamp = notificationItem.querySelector('small.text-muted');
+            if (!timestamp.innerHTML.includes('Read')) {
+                timestamp.innerHTML += ' • <i class="fas fa-check-circle text-success me-1"></i>Read';
+            }
+        }
+
+        function markAllRead() {
+            const unreadNotifications = document.querySelectorAll('.notification-item.unread');
+            unreadNotifications.forEach((notification, index) => {
+                setTimeout(() => {
+                    notification.classList.remove('unread');
+                    const button = notification.querySelector('.btn-outline-secondary');
+                    if (button) {
+                        button.innerHTML = '<i class="fas fa-check-circle text-success"></i>';
+                        button.disabled = true;
+                    }
+                    
+                    // Add read indicator to timestamp
+                    const timestamp = notification.querySelector('small.text-muted');
+                    if (!timestamp.innerHTML.includes('Read')) {
+                        timestamp.innerHTML += ' • <i class="fas fa-check-circle text-success me-1"></i>Read';
+                    }
+                }, index * 200);
+            });
+        }
+    </script>
+</body>
+</html>

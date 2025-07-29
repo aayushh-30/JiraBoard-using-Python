@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Create Sprint - Dhaniya{% endblock %}
+
+{% block content %}
+<!-- Sidebar -->
+<div id="sidebar-wrapper" class="bg-light border-end sidebar">
+    <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="/dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="list-group-item list-group-item-action active" href="/projects">
+            <i class="fas fa-project-diagram"></i> Projects
+        </a>
+        <a class="list-group-item list-group-item-action" href="/teams">
+            <i class="fas fa-users"></i> Teams
+        </a>
+        
+        <a class="list-group-item list-group-item-action" href="/projects/goals">
+            <i class="fas fa-bullseye"></i> Goals
+        </a>
+        <hr class="mx-3">
+        <a class="list-group-item list-group-item-action" href="/profile">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a class="list-group-item list-group-item-action" href="#">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Button -->
+<button id="sidebar-toggle" class="btn dhaniya-bg text-white">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Main Content -->
+<div class="content-wrapper with-sidebar" id="content-wrapper">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="dhaniya-card card">
+                    <div class="card-header dhaniya-bg text-white">
+                        <h3>🏃‍♂️ Create Sprint</h3>
+                        <small>Project: {{ project.name }}</small>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    {{ form.name.label(class="form-label") }}
+                                    {{ form.name(class="form-control", placeholder="Sprint 1, Feature Sprint, Bug Fix Sprint, etc.") }}
+                                    {% for error in form.name.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.duration_weeks.label(class="form-label") }}
+                                    {{ form.duration_weeks(class="form-control", min="1", max="8") }}
+                                    {% for error in form.duration_weeks.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.description.label(class="form-label") }}
+                                {{ form.description(class="form-control", rows="4", placeholder="Define sprint goals, objectives, and key deliverables") }}
+                                {% for error in form.description.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.start_date.label(class="form-label") }}
+                                    {{ form.start_date(class="form-control", type="date") }}
+                                    {% for error in form.start_date.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.end_date.label(class="form-label") }}
+                                    {{ form.end_date(class="form-control", type="date") }}
+                                    {% for error in form.end_date.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.scrum_master.label(class="form-label") }}
+                                    {{ form.scrum_master(class="form-select") }}
+                                    {% for error in form.scrum_master.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.capacity.label(class="form-label") }}
+                                    {{ form.capacity(class="form-control", min="1", placeholder="Team capacity (story points)") }}
+                                    {% for error in form.capacity.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <!-- Sprint Type and Methodology -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Sprint Type</label>
+                                    <select class="form-select" name="sprint_type">
+                                        <option value="development">🛠️ Development Sprint</option>
+                                        <option value="testing">🧪 Testing Sprint</option>
+                                        <option value="planning">📋 Planning Sprint</option>
+                                        <option value="release">🚀 Release Sprint</option>
+                                        <option value="maintenance">🔧 Maintenance Sprint</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Methodology</label>
+                                    <select class="form-select" name="methodology">
+                                        <option value="scrum">🏃‍♂️ Scrum</option>
+                                        <option value="kanban">📋 Kanban</option>
+                                        <option value="hybrid">🔄 Hybrid</option>
+                                        <option value="waterfall">💧 Waterfall</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Sprint Goals -->
+                            <div class="mb-3">
+                                <label class="form-label">Sprint Goals</label>
+                                <textarea class="form-control" name="goals" rows="3" 
+                                          placeholder="List specific, measurable goals for this sprint (one per line)"></textarea>
+                            </div>
+                            
+                            <!-- Definition of Done -->
+                            <div class="mb-3">
+                                <label class="form-label">Definition of Done</label>
+                                <textarea class="form-control" name="definition_of_done" rows="3" 
+                                          placeholder="Criteria that must be met for tasks to be considered complete"></textarea>
+                            </div>
+                            
+                            <!-- Sprint Settings -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="auto_assign_tasks" id="autoAssignSwitch">
+                                        <label class="form-check-label" for="autoAssignSwitch">
+                                            🤖 Auto-assign available tasks
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="enable_burndown" id="burndownSwitch" checked>
+                                        <label class="form-check-label" for="burndownSwitch">
+                                            📈 Enable burndown tracking
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Context Info -->
+                            <div class="alert alert-info">
+                                <h6>📋 Project Information</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Project:</strong> {{ project.name }}<br>
+                                        <strong>Status:</strong> {{ project.status.replace('_', ' ').title() if project.status else 'Active' }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Total Tasks:</strong> {{ project.tasks|length if project.tasks else 0 }}<br>
+                                        <strong>Progress:</strong> {{ project.progress or 0 }}%
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="/projects/{{ project.project_id }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Back to Project
+                                </a>
+                                <button type="submit" class="btn dhaniya-bg text-white">
+                                    <i class="fas fa-play"></i> Start Sprint
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar-wrapper');
+    const contentWrapper = document.getElementById('content-wrapper');
+    
+    if (sidebarToggle && sidebar && contentWrapper) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            contentWrapper.classList.toggle('sidebar-collapsed');
+        });
+    }
+
+    // Auto-calculate end date based on duration
+    const startDateInput = document.querySelector('input[name="start_date"]');
+    const durationInput = document.querySelector('input[name="duration_weeks"]');
+    const endDateInput = document.querySelector('input[name="end_date"]');
+
+    function calculateEndDate() {
+        if (startDateInput.value && durationInput.value) {
+            const startDate = new Date(startDateInput.value);
+            const duration = parseInt(durationInput.value);
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + (duration * 7));
+            endDateInput.value = endDate.toISOString().split('T')[0];
+        }
+    }
+
+    if (startDateInput && durationInput && endDateInput) {
+        startDateInput.addEventListener('change', calculateEndDate);
+        durationInput.addEventListener('change', calculateEndDate);
+    }
+});
+</script>
+{% endblock %}

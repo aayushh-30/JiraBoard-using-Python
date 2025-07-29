@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Task Comment - Jira Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .main-content { margin-left: 280px; padding: 20px; }
+        .comment-header { background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 25px; }
+        .comment-container { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .task-info { background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #0d6efd; }
+        .comment-editor { border: 2px solid #e9ecef; border-radius: 8px; min-height: 200px; }
+        .toolbar { display: flex; gap: 5px; align-items: center; padding: 10px; border-bottom: 1px solid #e9ecef; background: #f8f9fa; border-radius: 8px 8px 0 0; }
+        .toolbar button { border: none; background: none; padding: 8px 10px; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+        .toolbar button:hover { background: #e9ecef; }
+        .editor-content { padding: 15px; min-height: 150px; outline: none; }
+        .attachment-zone { border: 2px dashed #dee2e6; border-radius: 8px; padding: 40px; text-align: center; transition: all 0.3s; cursor: pointer; }
+        .attachment-zone:hover { border-color: #0d6efd; background: #f8f9ff; }
+        .attachment-zone.dragover { border-color: #0d6efd; background: #e7f3ff; }
+        .mention-suggestions { position: absolute; background: white; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; z-index: 1000; }
+        .mention-item { padding: 10px 15px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .mention-item:hover { background: #f8f9fa; }
+        .avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(45deg, #0d6efd, #6610f2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="comment-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-comment-plus"></i> Add Task Comment</h1>
+                    <p class="mb-0">Share updates, feedback, or collaborate with your team</p>
+                </div>
+                <a href="{{ url_for('task.view_task', id=task.id if task else 1) }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left"></i> Back to Task
+                </a>
+            </div>
+        </div>
+
+        <!-- Task Information -->
+        <div class="task-info">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-1">
+                        <i class="fas fa-tasks"></i> 
+                        {{ task.title if task else "Implement User Authentication System" }}
+                    </h5>
+                    <p class="text-muted mb-2">{{ task.description if task else "Create a secure login and registration system with JWT tokens" }}</p>
+                    <div class="d-flex gap-3 align-items-center">
+                        <span class="badge bg-primary">{{ task.status if task else "In Progress" }}</span>
+                        <span class="badge bg-warning">{{ task.priority if task else "High Priority" }}</span>
+                        <small class="text-muted">
+                            <i class="fas fa-user"></i> Assigned to: {{ task.assignee if task else "John Doe" }}
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <small class="text-muted">
+                        <strong>Task ID:</strong> #{{ task.id if task else "TSK-2024-001" }}<br>
+                        <strong>Sprint:</strong> {{ task.sprint if task else "Sprint 3" }}<br>
+                        <strong>Due:</strong> {{ task.due_date if task else "Jan 25, 2024" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" id="commentForm" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            
+            <div class="comment-container">
+                <h4><i class="fas fa-edit"></i> Write Your Comment</h4>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Comment Type</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="comment_type" id="update" value="update" checked>
+                        <label class="btn btn-outline-primary" for="update">
+                            <i class="fas fa-info-circle"></i> Status Update
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="comment_type" id="feedback" value="feedback">
+                        <label class="btn btn-outline-warning" for="feedback">
+                            <i class="fas fa-comment-dots"></i> Feedback
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="comment_type" id="question" value="question">
+                        <label class="btn btn-outline-info" for="question">
+                            <i class="fas fa-question-circle"></i> Question
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="comment_type" id="blocker" value="blocker">
+                        <label class="btn btn-outline-danger" for="blocker">
+                            <i class="fas fa-exclamation-triangle"></i> Blocker
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Comment</label>
+                    <div class="comment-editor">
+                        <div class="toolbar">
+                            <button type="button" onclick="formatText('bold')" title="Bold">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button type="button" onclick="formatText('italic')" title="Italic">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button type="button" onclick="formatText('underline')" title="Underline">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                            <div class="vr"></div>
+                            <button type="button" onclick="insertList('ul')" title="Bullet List">
+                                <i class="fas fa-list-ul"></i>
+                            </button>
+                            <button type="button" onclick="insertList('ol')" title="Numbered List">
+                                <i class="fas fa-list-ol"></i>
+                            </button>
+                            <div class="vr"></div>
+                            <button type="button" onclick="insertMention()" title="Mention User">
+                                <i class="fas fa-at"></i>
+                            </button>
+                            <button type="button" onclick="insertLink()" title="Insert Link">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button type="button" onclick="insertCode()" title="Code Block">
+                                <i class="fas fa-code"></i>
+                            </button>
+                            <div class="vr"></div>
+                            <button type="button" onclick="togglePreview()" title="Preview">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="editor-content" contenteditable="true" id="commentEditor" 
+                             placeholder="Write your comment here... Use @ to mention team members">
+                        </div>
+                    </div>
+                    <textarea name="comment_content" id="commentTextarea" style="display: none;"></textarea>
+                    <small class="text-muted">Use @ to mention team members, # to reference tasks</small>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Time Spent (Optional)</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="time_spent" placeholder="0" min="0" step="0.5">
+                                <span class="input-group-text">hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Visibility</label>
+                            <select class="form-select" name="visibility">
+                                <option value="team" selected>Team Members</option>
+                                <option value="project">Project Members</option>
+                                <option value="public">Everyone</option>
+                                <option value="private">Private (Only Me)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attachments Section -->
+            <div class="comment-container">
+                <h5><i class="fas fa-paperclip"></i> Attachments</h5>
+                <div class="attachment-zone" id="attachmentZone" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                    <h6>Drag and drop files here</h6>
+                    <p class="text-muted">or click to browse files</p>
+                    <small class="text-muted">Supports: Images, Documents, Archives (Max 10MB each)</small>
+                </div>
+                <input type="file" id="fileInput" name="attachments" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt,.zip" style="display: none;">
+                <div id="fileList" class="mt-3"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="notifyTeam" name="notify_team" checked>
+                    <label class="form-check-label" for="notifyTeam">
+                        <i class="fas fa-bell"></i> Notify team members
+                    </label>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+                        <i class="fas fa-save"></i> Save Draft
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-comment"></i> Add Comment
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Mention Suggestions (Hidden by default) -->
+        <div class="mention-suggestions" id="mentionSuggestions" style="display: none;">
+            <div class="mention-item" data-user="john_doe">
+                <div class="avatar">JD</div>
+                <div>
+                    <div class="fw-semibold">John Doe</div>
+                    <small class="text-muted">Frontend Developer</small>
+                </div>
+            </div>
+            <div class="mention-item" data-user="sarah_smith">
+                <div class="avatar">SS</div>
+                <div>
+                    <div class="fw-semibold">Sarah Smith</div>
+                    <small class="text-muted">Backend Developer</small>
+                </div>
+            </div>
+            <div class="mention-item" data-user="mike_chen">
+                <div class="avatar">MC</div>
+                <div>
+                    <div class="fw-semibold">Mike Chen</div>
+                    <small class="text-muted">DevOps Engineer</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Rich text editor functions
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('commentEditor').focus();
+        }
+
+        function insertList(type) {
+            const command = type === 'ul' ? 'insertUnorderedList' : 'insertOrderedList';
+            document.execCommand(command, false, null);
+            document.getElementById('commentEditor').focus();
+        }
+
+        function insertMention() {
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            const span = document.createElement('span');
+            span.innerHTML = '@';
+            range.insertNode(span);
+            range.setStartAfter(span);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            showMentionSuggestions();
+        }
+
+        function insertLink() {
+            const url = prompt('Enter URL:');
+            if (url) {
+                document.execCommand('createLink', false, url);
+            }
+        }
+
+        function insertCode() {
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            const code = document.createElement('code');
+            code.style.background = '#f8f9fa';
+            code.style.padding = '2px 4px';
+            code.style.borderRadius = '3px';
+            
+            if (range.collapsed) {
+                code.innerHTML = 'code';
+            } else {
+                code.appendChild(range.extractContents());
+            }
+            
+            range.insertNode(code);
+        }
+
+        function showMentionSuggestions() {
+            const suggestions = document.getElementById('mentionSuggestions');
+            suggestions.style.display = 'block';
+            
+            // Position suggestions near cursor (simplified)
+            suggestions.style.left = '400px';
+            suggestions.style.top = '300px';
+        }
+
+        function togglePreview() {
+            const editor = document.getElementById('commentEditor');
+            const isPreview = editor.contentEditable === 'false';
+            
+            if (isPreview) {
+                editor.contentEditable = 'true';
+                editor.style.background = '';
+            } else {
+                editor.contentEditable = 'false';
+                editor.style.background = '#f8f9fa';
+            }
+        }
+
+        function saveDraft() {
+            const content = document.getElementById('commentEditor').innerHTML;
+            localStorage.setItem('comment_draft', content);
+            alert('Draft saved locally');
+        }
+
+        // File upload handling
+        const attachmentZone = document.getElementById('attachmentZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+
+        attachmentZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            attachmentZone.classList.add('dragover');
+        });
+
+        attachmentZone.addEventListener('dragleave', () => {
+            attachmentZone.classList.remove('dragover');
+        });
+
+        attachmentZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            attachmentZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            fileList.innerHTML = '';
+            for (let file of files) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'alert alert-light d-flex justify-content-between align-items-center';
+                fileItem.innerHTML = `
+                    <div>
+                        <i class="fas fa-file me-2"></i>
+                        <strong>${file.name}</strong>
+                        <small class="text-muted">(${(file.size / 1024 / 1024).toFixed(2)} MB)</small>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                fileList.appendChild(fileItem);
+            }
+        }
+
+        function removeFile(button) {
+            button.parentElement.remove();
+        }
+
+        // Form submission
+        document.getElementById('commentForm').addEventListener('submit', function(e) {
+            // Transfer rich text content to hidden textarea
+            const editorContent = document.getElementById('commentEditor').innerHTML;
+            document.getElementById('commentTextarea').value = editorContent;
+            
+            if (!editorContent.trim()) {
+                e.preventDefault();
+                alert('Please enter a comment');
+                return;
+            }
+        });
+
+        // Load draft on page load
+        window.addEventListener('load', function() {
+            const draft = localStorage.getItem('comment_draft');
+            if (draft && confirm('Found a saved draft. Would you like to restore it?')) {
+                document.getElementById('commentEditor').innerHTML = draft;
+            }
+        });
+
+        // Mention suggestions click handler
+        document.querySelectorAll('.mention-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const username = this.dataset.user;
+                const editor = document.getElementById('commentEditor');
+                editor.innerHTML += `<span style="color: #0d6efd; font-weight: bold;">@${username}</span> `;
+                document.getElementById('mentionSuggestions').style.display = 'none';
+                editor.focus();
+            });
+        });
+
+        // Hide mentions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#mentionSuggestions') && !e.target.closest('#commentEditor')) {
+                document.getElementById('mentionSuggestions').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

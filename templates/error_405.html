@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}405 - Method Not Allowed{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-card dhaniya-card card">
+        <div class="card-header dhaniya-bg text-white text-center">
+            <h2>🚫 Method Not Allowed</h2>
+        </div>
+        <div class="card-body text-center">
+            <div class="error-code mb-4">
+                <h1 class="display-1 text-muted">405</h1>
+            </div>
+            <h3 class="mb-3">That method is not allowed here!</h3>
+            <p class="lead mb-4">The request method used is not supported for this resource.</p>
+            
+            <div class="error-actions">
+                <a href="/dashboard" class="btn dhaniya-bg text-white btn-lg me-3">
+                    <i class="fas fa-home"></i> Go to Dashboard
+                </a>
+                <a href="javascript:history.back()" class="btn btn-outline-success btn-lg">
+                    <i class="fas fa-arrow-left"></i> Go Back
+                </a>
+            </div>
+            
+            <div class="mt-4">
+                <small class="text-muted">
+                    🌿 <em>Some garden paths only allow certain types of visitors!</em>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

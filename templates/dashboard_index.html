@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Jira Board{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+{% if current_user.is_authenticated %}
+    <div class="row">
+        <div class="col-md-8">
+            <h3>Welcome, {{ current_user.username }}!</h3>
+            <p>Role: <span class="badge bg-primary">{{ current_user.role.role_name.value }}</span></p>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5>My Projects</h5>
+                    <p>{{ projects|length }} projects</p>
+                    <a href="/project" class="btn btn-primary">View Projects</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5>My Tasks</h5>
+                    <p>{{ tasks|length }} tasks</p>
+                    <a href="#" class="btn btn-secondary">View Tasks</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Quick Actions</h5>
+                    <a href="/projects/create" class="btn btn-success btn-sm">New Project</a>
+                    <a href="#" class="btn btn-info btn-sm">New Task</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="jumbotron">
+        <h1>Welcome to Jira Board</h1>
+        <p>Please login to access your dashboard.</p>
+        <a href="/auth/login" class="btn btn-primary">Login</a>
+    </div>
+{% endif %}
+{% endblock %}

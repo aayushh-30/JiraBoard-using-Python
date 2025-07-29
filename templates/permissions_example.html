@@ -1,0 +1,248 @@
+<!-- 
+Template Example: Permission-Based UI Components 
+This shows how to use the decorator-based permissions system in templates
+-->
+
+<!-- Navigation items with permission checks -->
+<div class="navigation-with-permissions">
+    
+    <!-- Team Management Section -->
+    {% if has_permission('team_view') %}
+    <div class="nav-section">
+        <h5><i class="fas fa-users"></i> Teams</h5>
+        <ul class="nav-items">
+            <li><a href="/teams/" class="nav-link"><i class="fas fa-list"></i> View Teams</a></li>
+            
+            {% if has_permission('team_create') %}
+            <li><a href="/teams/create" class="nav-link"><i class="fas fa-plus"></i> Create Team</a></li>
+            {% endif %}
+            
+            {% if has_permission('team_assign_users') %}
+            <li><a href="/teams/assign" class="nav-link"><i class="fas fa-user-plus"></i> Assign Members</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <!-- Project Management Section -->
+    {% if has_permission('project_view') %}
+    <div class="nav-section">
+        <h5><i class="fas fa-project-diagram"></i> Projects</h5>
+        <ul class="nav-items">
+            <li><a href="/projects/" class="nav-link"><i class="fas fa-list"></i> View Projects</a></li>
+            
+            {% if has_permission('project_create') %}
+            <li><a href="/projects/create" class="nav-link"><i class="fas fa-plus"></i> Create Project</a></li>
+            {% endif %}
+            
+            {% if has_permission('project_assign') %}
+            <li><a href="/projects/assign" class="nav-link"><i class="fas fa-tasks"></i> Assign Projects</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <!-- Task Management Section -->
+    {% if has_permission('task_view') %}
+    <div class="nav-section">
+        <h5><i class="fas fa-tasks"></i> Tasks</h5>
+        <ul class="nav-items">
+            <li><a href="/tasks/" class="nav-link"><i class="fas fa-list"></i> View Tasks</a></li>
+            
+            {% if has_permission('task_create') %}
+            <li><a href="/tasks/create" class="nav-link"><i class="fas fa-plus"></i> Create Task</a></li>
+            {% endif %}
+            
+            {% if has_permission('task_assign') %}
+            <li><a href="/tasks/assign" class="nav-link"><i class="fas fa-user-tag"></i> Assign Tasks</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <!-- Admin Section -->
+    {% if has_permission('admin_panel') %}
+    <div class="nav-section admin-section">
+        <h5><i class="fas fa-cog text-danger"></i> Administration</h5>
+        <ul class="nav-items">
+            <li><a href="/admin/" class="nav-link"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</a></li>
+            
+            {% if has_permission('user_create') %}
+            <li><a href="/admin/users/create" class="nav-link"><i class="fas fa-user-plus"></i> Create User</a></li>
+            {% endif %}
+            
+            {% if has_permission('system_settings') %}
+            <li><a href="/admin/settings" class="nav-link"><i class="fas fa-cogs"></i> System Settings</a></li>
+            {% endif %}
+            
+            {% if has_permission('database_manage') %}
+            <li><a href="/admin/database" class="nav-link"><i class="fas fa-database"></i> Database Management</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <!-- Reports Section -->
+    {% if has_permission('reports_view') %}
+    <div class="nav-section">
+        <h5><i class="fas fa-chart-bar"></i> Reports</h5>
+        <ul class="nav-items">
+            <li><a href="/reports/" class="nav-link"><i class="fas fa-list"></i> View Reports</a></li>
+            
+            {% if has_permission('reports_create') %}
+            <li><a href="/reports/create" class="nav-link"><i class="fas fa-plus"></i> Create Report</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+    
+</div>
+
+<!-- Permission Debug Info (only show in development) -->
+{% if config.DEBUG %}
+<div class="permission-debug mt-4 p-3 border rounded">
+    <h6>🐛 Permission Debug Info</h6>
+    <p><strong>Current User:</strong> {{ current_user.username if current_user.is_authenticated else 'Anonymous' }}</p>
+    <p><strong>User Role:</strong> {{ user_role or 'None' }}</p>
+    <p><strong>User Permissions:</strong></p>
+    <ul>
+        {% for permission in user_permissions %}
+        <li><code>{{ permission }}</code> - {{ available_permissions[permission] or permission }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<!-- Example: Conditional Button Display -->
+<div class="action-buttons mt-3">
+    {% if has_permission('project_create') %}
+    <a href="/projects/create" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Project
+    </a>
+    {% endif %}
+    
+    {% if has_permission('team_create') %}
+    <a href="/teams/create" class="btn btn-success">
+        <i class="fas fa-users"></i> New Team
+    </a>
+    {% endif %}
+    
+    {% if has_permission('user_create') %}
+    <a href="/admin/users/create" class="btn btn-warning">
+        <i class="fas fa-user-plus"></i> New User
+    </a>
+    {% endif %}
+</div>
+
+<!-- Example: Role-based Content Display -->
+<div class="role-content mt-4">
+    {% if user_role == 'admin' %}
+    <div class="alert alert-info">
+        <h5><i class="fas fa-crown"></i> Administrator Dashboard</h5>
+        <p>You have full system access. Use your powers wisely!</p>
+    </div>
+    {% elif user_role == 'manager' %}
+    <div class="alert alert-success">
+        <h5><i class="fas fa-users-cog"></i> Manager Dashboard</h5>
+        <p>You can manage teams, projects, and approve user requests.</p>
+    </div>
+    {% elif user_role == 'developer' %}
+    <div class="alert alert-primary">
+        <h5><i class="fas fa-code"></i> Developer Dashboard</h5>
+        <p>Focus on your tasks and collaborate with your team.</p>
+    </div>
+    {% elif user_role == 'client' %}
+    <div class="alert alert-warning">
+        <h5><i class="fas fa-handshake"></i> Client Dashboard</h5>
+        <p>Track your projects and create tickets for support.</p>
+    </div>
+    {% else %}
+    <div class="alert alert-secondary">
+        <h5><i class="fas fa-eye"></i> Viewer Dashboard</h5>
+        <p>You have read-only access to the system.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Example: Dynamic Form Fields Based on Permissions -->
+{% if has_permission('project_edit') %}
+<form class="permission-form mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <label for="project_name" class="form-label">Project Name</label>
+            <input type="text" class="form-control" id="project_name" name="project_name">
+        </div>
+        
+        {% if has_permission('project_assign') %}
+        <div class="col-md-6">
+            <label for="assign_to" class="form-label">Assign To Team</label>
+            <select class="form-control" id="assign_to" name="assign_to">
+                <option value="">Select Team...</option>
+                <!-- Teams would be populated here -->
+            </select>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if has_permission('project_create') or has_permission('project_edit') %}
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Save Project
+        </button>
+    </div>
+    {% endif %}
+</form>
+{% else %}
+<div class="alert alert-warning">
+    <i class="fas fa-lock"></i> You don't have permission to edit projects.
+</div>
+{% endif %}
+
+<style>
+.navigation-with-permissions .nav-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border-left: 3px solid #007bff;
+    background-color: #f8f9fa;
+}
+
+.navigation-with-permissions .admin-section {
+    border-left-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+.navigation-with-permissions .nav-items {
+    list-style: none;
+    padding-left: 1rem;
+}
+
+.navigation-with-permissions .nav-items li {
+    margin-bottom: 0.5rem;
+}
+
+.navigation-with-permissions .nav-link {
+    text-decoration: none;
+    color: #495057;
+    padding: 0.5rem;
+    display: block;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.navigation-with-permissions .nav-link:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+}
+
+.permission-debug {
+    background-color: #f1f3f4;
+    font-size: 0.85rem;
+}
+
+.permission-debug code {
+    background-color: #fff;
+    padding: 2px 4px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+}
+</style>

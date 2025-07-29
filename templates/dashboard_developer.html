@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Developer Dashboard - Dhaniya{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <div class="position-sticky pt-3">
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action active" href="/dashboard">
+                        <i class="fas fa-code"></i> Developer Dashboard
+                    </a>
+                    <a class="list-group-item list-group-item-action" href="/projects/">
+                        <i class="fas fa-project-diagram"></i> My Projects
+                    </a>
+                    <a class="list-group-item list-group-item-action" href="/tasks/">
+                        <i class="fas fa-tasks"></i> My Tasks
+                    </a>
+                    <hr class="mx-3">
+                    <a class="list-group-item list-group-item-action" href="/profile">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">👋 Welcome back, {{ user.username }}!</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Pull Request</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Commit</button>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> New Task
+                    </button>
+                </div>
+            </div>
+
+            <!-- Developer Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="dhaniya-card text-center">
+                        <div class="card-body">
+                            <h3 class="text-primary">8</h3>
+                            <p class="mb-0">Active Tasks</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dhaniya-card text-center">
+                        <div class="card-body">
+                            <h3 class="text-success">24</h3>
+                            <p class="mb-0">Completed</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dhaniya-card text-center">
+                        <div class="card-body">
+                            <h3 class="text-warning">3</h3>
+                            <p class="mb-0">In Review</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dhaniya-card text-center">
+                        <div class="card-body">
+                            <h3 class="text-info">{{ projects|length if projects else 2 }}</h3>
+                            <p class="mb-0">Projects</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Tasks -->
+            <div class="dhaniya-card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">🚀 My Active Tasks</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Project</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Due Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Implement user authentication</td>
+                                    <td>Mobile App</td>
+                                    <td><span class="badge bg-danger">High</span></td>
+                                    <td><span class="badge bg-warning">In Progress</span></td>
+                                    <td>Today</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-success">Complete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Fix payment gateway bug</td>
+                                    <td>E-commerce</td>
+                                    <td><span class="badge bg-warning">Medium</span></td>
+                                    <td><span class="badge bg-info">Review</span></td>
+                                    <td>Tomorrow</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Database optimization</td>
+                                    <td>Backend API</td>
+                                    <td><span class="badge bg-secondary">Low</span></td>
+                                    <td><span class="badge bg-primary">Todo</span></td>
+                                    <td>Next Week</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-success">Start</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Activity -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="dhaniya-card">
+                        <div class="card-body">
+                            <h5 class="card-title">📊 Code Activity</h5>
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Commits This Week</span>
+                                    <span class="text-success">23</span>
+                                </div>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-success" style="width: 85%"></div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <span>Lines of Code</span>
+                                    <span class="text-info">1,247</span>
+                                </div>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-info" style="width: 70%"></div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <span>Code Reviews</span>
+                                    <span class="text-warning">5</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-warning" style="width: 45%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="dhaniya-card">
+                        <div class="card-body">
+                            <h5 class="card-title">⚡ Quick Actions</h5>
+                            <div class="d-grid gap-2">
+                                <a href="/tasks/create" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Create New Task
+                                </a>
+                                <a href="/projects/" class="btn btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View Projects
+                                </a>
+                                <a href="#" class="btn btn-outline-secondary">
+                                    <i class="fas fa-code-branch"></i> Submit Code Review
+                                </a>
+                                <a href="#" class="btn btn-outline-info">
+                                    <i class="fas fa-bug"></i> Report Bug
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

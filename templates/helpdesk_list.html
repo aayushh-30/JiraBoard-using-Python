@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk Management - Jira Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .main-content { margin-left: 280px; padding: 20px; }
+        .helpdesk-header { background: linear-gradient(135deg, #20c997 0%, #198754 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 25px; }
+        .stats-card { background: white; border-radius: 10px; padding: 20px; text-align: center; border-left: 4px solid; margin-bottom: 20px; transition: transform 0.2s; }
+        .stats-card:hover { transform: translateY(-5px); }
+        .stats-card.open { border-color: #fd7e14; }
+        .stats-card.progress { border-color: #0d6efd; }
+        .stats-card.resolved { border-color: #198754; }
+        .stats-card.closed { border-color: #6c757d; }
+        .ticket-card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 15px; border-left: 4px solid #dee2e6; transition: all 0.2s; }
+        .ticket-card:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        .priority-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
+        .priority-low { background: #d1f5d3; color: #0d5c26; }
+        .priority-medium { background: #fff3cd; color: #856404; }
+        .priority-high { background: #f8d7da; color: #721c24; }
+        .priority-critical { background: #e2b6ff; color: #5a0080; }
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
+        .status-open { background: #cce5ff; color: #004085; }
+        .status-progress { background: #fff3cd; color: #856404; }
+        .status-resolved { background: #d1f5d3; color: #0d5c26; }
+        .status-closed { background: #e2e3e5; color: #383d41; }
+        .filter-section { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .search-box { position: relative; }
+        .search-box .fas { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #6c757d; }
+        .search-box input { padding-left: 45px; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="helpdesk-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-headset"></i> Helpdesk Management</h1>
+                    <p class="mb-0">Track and manage customer support tickets</p>
+                </div>
+                <a href="{{ url_for('helpdesk.create_helpdesk') }}" class="btn btn-light btn-lg">
+                    <i class="fas fa-plus"></i> New Ticket
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card open">
+                    <i class="fas fa-folder-open fa-2x text-warning mb-2"></i>
+                    <h3 class="mb-1">24</h3>
+                    <p class="text-muted mb-0">Open Tickets</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card progress">
+                    <i class="fas fa-clock fa-2x text-primary mb-2"></i>
+                    <h3 class="mb-1">18</h3>
+                    <p class="text-muted mb-0">In Progress</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card resolved">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h3 class="mb-1">156</h3>
+                    <p class="text-muted mb-0">Resolved</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card closed">
+                    <i class="fas fa-archive fa-2x text-secondary mb-2"></i>
+                    <h3 class="mb-1">89</h3>
+                    <p class="text-muted mb-0">Closed</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" placeholder="Search tickets..." id="searchInput">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="open">Open</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="priorityFilter">
+                        <option value="">All Priority</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="technical">Technical</option>
+                        <option value="billing">Billing</option>
+                        <option value="account">Account</option>
+                        <option value="general">General</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tickets List -->
+        <div id="ticketsList">
+            <!-- High Priority Ticket -->
+            <div class="ticket-card" data-status="open" data-priority="high" data-category="technical">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="mb-1">
+                            <a href="{{ url_for('helpdesk.edit_helpdesk', id=1) }}" class="text-decoration-none">
+                                #HD-2024-001 - Application Login Issue
+                            </a>
+                        </h5>
+                        <p class="text-muted mb-2">User cannot login to the application after password reset</p>
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="priority-badge priority-high">
+                                <i class="fas fa-exclamation-triangle"></i> High Priority
+                            </span>
+                            <span class="status-badge status-open">
+                                <i class="fas fa-folder-open"></i> Open
+                            </span>
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> John Doe
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> 2 hours ago
+                            </small>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('helpdesk.edit_helpdesk', id=1) }}">
+                                <i class="fas fa-edit"></i> Edit
+                            </a></li>
+                            <li><a class="dropdown-item" href="#">
+                                <i class="fas fa-comment"></i> Add Comment
+                            </a></li>
+                            <li><a class="dropdown-item" href="#">
+                                <i class="fas fa-user"></i> Assign
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#">
+                                <i class="fas fa-trash"></i> Delete
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-9">
+                        <small class="text-muted">
+                            <strong>Assigned to:</strong> Support Team &bull; 
+                            <strong>Category:</strong> Technical &bull;
+                            <strong>Due:</strong> Today
+                        </small>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="updateStatus(1, 'in_progress')">
+                                <i class="fas fa-play"></i> Start
+                            </button>
+                            <button class="btn btn-outline-success" onclick="updateStatus(1, 'resolved')">
+                                <i class="fas fa-check"></i> Resolve
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- In Progress Ticket -->
+            <div class="ticket-card" data-status="in_progress" data-priority="medium" data-category="billing">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="mb-1">
+                            <a href="{{ url_for('helpdesk.edit_helpdesk', id=2) }}" class="text-decoration-none">
+                                #HD-2024-002 - Billing Inquiry
+                            </a>
+                        </h5>
+                        <p class="text-muted mb-2">Customer wants clarification on last month's charges</p>
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="priority-badge priority-medium">
+                                <i class="fas fa-minus"></i> Medium Priority
+                            </span>
+                            <span class="status-badge status-progress">
+                                <i class="fas fa-clock"></i> In Progress
+                            </span>
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> Sarah Wilson
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> 5 hours ago
+                            </small>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('helpdesk.edit_helpdesk', id=2) }}">
+                                <i class="fas fa-edit"></i> Edit
+                            </a></li>
+                            <li><a class="dropdown-item" href="#">
+                                <i class="fas fa-comment"></i> Add Comment
+                            </a></li>
+                            <li><a class="dropdown-item" href="#">
+                                <i class="fas fa-user"></i> Assign
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-9">
+                        <small class="text-muted">
+                            <strong>Assigned to:</strong> Mike Chen &bull; 
+                            <strong>Category:</strong> Billing &bull;
+                            <strong>Due:</strong> Tomorrow
+                        </small>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-success" onclick="updateStatus(2, 'resolved')">
+                                <i class="fas fa-check"></i> Resolve
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="updateStatus(2, 'open')">
+                                <i class="fas fa-pause"></i> Pause
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Critical Ticket -->
+            <div class="ticket-card" data-status="open" data-priority="critical" data-category="technical">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="mb-1">
+                            <a href="{{ url_for('helpdesk.edit_helpdesk', id=3) }}" class="text-decoration-none">
+                                #HD-2024-003 - System Outage
+                            </a>
+                        </h5>
+                        <p class="text-muted mb-2">Main application is down, affecting all users</p>
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="priority-badge priority-critical">
+                                <i class="fas fa-fire"></i> Critical
+                            </span>
+                            <span class="status-badge status-open">
+                                <i class="fas fa-folder-open"></i> Open
+                            </span>
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> System Monitor
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> 30 minutes ago
+                            </small>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('helpdesk.edit_helpdesk', id=3) }}">
+                                <i class="fas fa-edit"></i> Edit
+                            </a></li>
+                            <li><a class="dropdown-item" href="#">
+                                <i class="fas fa-comment"></i> Add Comment
+                            </a></li>
+                            <li><a class="dropdown-item" href="#">
+                                <i class="fas fa-user"></i> Assign
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-9">
+                        <small class="text-muted">
+                            <strong>Assigned to:</strong> DevOps Team &bull; 
+                            <strong>Category:</strong> Technical &bull;
+                            <strong>Due:</strong> ASAP
+                        </small>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-danger" onclick="escalateTicket(3)">
+                                <i class="fas fa-arrow-up"></i> Escalate
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="updateStatus(3, 'in_progress')">
+                                <i class="fas fa-play"></i> Start
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function updateStatus(ticketId, newStatus) {
+            // Simulate status update
+            alert(`Ticket #${ticketId} status updated to: ${newStatus}`);
+            location.reload();
+        }
+
+        function escalateTicket(ticketId) {
+            if (confirm(`Escalate ticket #${ticketId} to management?`)) {
+                alert(`Ticket #${ticketId} has been escalated`);
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('priorityFilter').value = '';
+            document.getElementById('categoryFilter').value = '';
+            filterTickets();
+        }
+
+        function filterTickets() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+
+            document.querySelectorAll('.ticket-card').forEach(card => {
+                const cardText = card.textContent.toLowerCase();
+                const cardStatus = card.dataset.status;
+                const cardPriority = card.dataset.priority;
+                const cardCategory = card.dataset.category;
+
+                const matchesSearch = cardText.includes(search);
+                const matchesStatus = !status || cardStatus === status;
+                const matchesPriority = !priority || cardPriority === priority;
+                const matchesCategory = !category || cardCategory === category;
+
+                card.style.display = matchesSearch && matchesStatus && matchesPriority && matchesCategory ? 'block' : 'none';
+            });
+        }
+
+        // Add event listeners for real-time filtering
+        document.getElementById('searchInput').addEventListener('input', filterTickets);
+        document.getElementById('statusFilter').addEventListener('change', filterTickets);
+        document.getElementById('priorityFilter').addEventListener('change', filterTickets);
+        document.getElementById('categoryFilter').addEventListener('change', filterTickets);
+    </script>
+</body>
+</html>
