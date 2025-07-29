@@ -1,0 +1,670 @@
+/* GitHub-inspired Dark Theme for Dhaniya */
+
+/* Root Variables for Dark Theme */
+:root {
+    --dark-bg-primary: #0d1117;
+    --dark-bg-secondary: #161b22;
+    --dark-bg-tertiary: #21262d;
+    --dark-text-primary: #f0f6fc;
+    --dark-text-secondary: #8b949e;
+    --dark-text-muted: #6e7681;
+    --dark-border: #30363d;
+    --dark-border-muted: #21262d;
+    --dark-success: #238636;
+    --dark-danger: #f85149;
+    --dark-warning: #d29922;
+    --dark-info: #58a6ff;
+    --dark-primary: #238636;
+    --dark-accent: #3fb950;
+    --dark-hover: rgba(177, 186, 196, 0.12);
+    --dark-navbar: #161b22;
+    --dark-card: #21262d;
+    --dark-input: #21262d;
+    --dark-shadow: rgba(1, 4, 9, 0.8);
+}
+
+/* Base Dark Theme Application */
+body {
+    background-color: var(--dark-bg-primary) !important;
+    color: var(--dark-text-primary) !important;
+    
+    /* Override main theme variables for dark mode */
+    --primary: var(--dark-primary);
+    --accent: var(--dark-accent);
+    --bg: var(--dark-bg-primary);
+    --text: var(--dark-text-primary);
+    --card-bg: var(--dark-card);
+    
+    /* Kanban Dark Mode Variables */
+    --kanban-board-bg: var(--dark-bg-secondary);
+    --kanban-column-bg: var(--dark-bg-tertiary);
+    --kanban-column-drag-bg: var(--dark-bg-secondary);
+    --kanban-header-bg: var(--dark-primary);
+    --kanban-border: var(--dark-border);
+    --kanban-text: var(--dark-text-primary);
+    --kanban-count-bg: rgba(255, 255, 255, 0.1);
+    --kanban-count-text: var(--dark-text-secondary);
+    --kanban-card-bg: var(--dark-card);
+    --kanban-card-border: var(--dark-border);
+    --kanban-card-text: var(--dark-text-primary);
+}
+
+/* Navigation Bar - Dark Theme */
+.navbar.dhaniya-bg,
+.dhaniya-bg {
+    background-color: var(--dark-navbar) !important;
+    border-bottom: 1px solid var(--dark-border) !important;
+}
+
+.navbar-brand {
+    color: var(--dark-text-primary) !important;
+}
+
+.navbar-nav .nav-link,
+.navbar .btn-outline-light {
+    color: var(--dark-text-primary) !important;
+    border-color: var(--dark-border) !important;
+}
+
+.navbar .btn-outline-light:hover,
+.navbar .navbar-toggler:hover {
+    background-color: var(--dark-hover) !important;
+}
+
+/* Search Bar Dark Theme */
+.navbar .input-group-text {
+    background-color: var(--dark-input) !important;
+    border-color: var(--dark-border) !important;
+    color: var(--dark-text-secondary) !important;
+}
+
+.navbar .form-control {
+    background-color: var(--dark-input) !important;
+    border-color: var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.navbar .form-control::placeholder {
+    color: var(--dark-text-muted) !important;
+}
+
+.navbar .form-control:focus {
+    background-color: var(--dark-bg-tertiary) !important;
+    border-color: var(--dark-accent) !important;
+    color: var(--dark-text-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(35, 134, 54, 0.25) !important;
+}
+
+/* Dropdown Menu Dark Theme */
+.dropdown-menu {
+    background-color: var(--dark-bg-secondary) !important;
+    border: 1px solid var(--dark-border) !important;
+    box-shadow: 0 8px 32px rgba(1, 4, 9, 0.8) !important;
+}
+
+.dropdown-item {
+    color: var(--dark-text-primary) !important;
+    transition: all 0.2s ease !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--dark-hover) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.dropdown-item-text {
+    color: var(--dark-text-secondary) !important;
+}
+
+.dropdown-divider {
+    border-top: 1px solid var(--dark-border) !important;
+}
+
+/* Navbar Dark Theme Fixes - COMPLETE WHITE BORDERS */
+.navbar .input-group .form-control {
+    border: 2px solid #ffffff !important;
+    border-right: none !important;
+}
+
+.navbar .input-group .btn {
+    border: 2px solid #ffffff !important;
+    border-left: 2px solid #ffffff !important;
+}
+
+/* Cards and Containers */
+.card,
+.dhaniya-card {
+    background-color: var(--dark-card) !important;
+    border: 1px solid var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.card-header {
+    background-color: var(--dark-bg-tertiary) !important;
+    border-bottom: 1px solid var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.card-body {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* Project Cards and Text Visibility Fixes */
+.card h5, .card h4, .card h3, .card h2, .card h1 {
+    color: var(--dark-text-primary) !important;
+}
+
+.card p, .card .card-text, .card .text-muted {
+    color: var(--dark-text-secondary) !important;
+}
+
+.card .text-dark {
+    color: var(--dark-text-primary) !important;
+}
+
+/* Recent Projects Section */
+.recent-project-item h6,
+.recent-project-item .project-title {
+    color: var(--dark-text-primary) !important;
+}
+
+.recent-project-item p,
+.recent-project-item .project-description {
+    color: var(--dark-text-secondary) !important;
+}
+
+.recent-project-item .text-muted {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Sidebar Dark Theme */
+#sidebar-wrapper {
+    background-color: var(--dark-bg-secondary) !important;
+    border-right: 1px solid var(--dark-border) !important;
+}
+
+#sidebar-wrapper .list-group-item {
+    background-color: transparent !important;
+    color: var(--dark-text-primary) !important;
+    border: none !important;
+    border-left: 3px solid transparent !important;
+}
+
+#sidebar-wrapper .list-group-item:hover {
+    background-color: var(--dark-hover) !important;
+    color: var(--dark-accent) !important;
+    border-left: 3px solid var(--dark-accent) !important;
+}
+
+#sidebar-wrapper .list-group-item.active {
+    background-color: var(--dark-primary) !important;
+    color: white !important;
+    border-left: 3px solid var(--dark-accent) !important;
+}
+
+/* Forms and Inputs */
+.form-control,
+.form-select {
+    background-color: var(--dark-input) !important;
+    border: 1px solid var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--dark-input) !important;
+    border-color: var(--dark-accent) !important;
+    box-shadow: 0 0 0 0.2rem rgba(63, 185, 80, 0.25) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.form-control::placeholder {
+    color: var(--dark-text-muted) !important;
+}
+
+.form-label {
+    color: var(--dark-text-primary) !important;
+}
+
+/* Buttons */
+.btn-primary,
+.btn.dhaniya-bg {
+    background-color: var(--dark-primary) !important;
+    border-color: var(--dark-primary) !important;
+    color: white !important;
+}
+
+.btn-primary:hover,
+.btn.dhaniya-bg:hover {
+    background-color: var(--dark-accent) !important;
+    border-color: var(--dark-accent) !important;
+    transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+    color: var(--dark-text-secondary) !important;
+    border-color: var(--dark-border) !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--dark-hover) !important;
+    color: var(--dark-text-primary) !important;
+    border-color: var(--dark-border) !important;
+}
+
+.btn-outline-danger {
+    color: var(--dark-danger) !important;
+    border-color: var(--dark-danger) !important;
+}
+
+.btn-outline-danger:hover {
+    background-color: var(--dark-danger) !important;
+    color: white !important;
+}
+
+/* Dropdowns */
+.dropdown-menu {
+    background-color: var(--dark-card) !important;
+    border: 1px solid var(--dark-border) !important;
+}
+
+.dropdown-item {
+    color: var(--dark-text-primary) !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--dark-hover) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.dropdown-divider {
+    border-color: var(--dark-border) !important;
+}
+
+.dropdown-header {
+    color: var(--dark-text-secondary) !important;
+}
+
+/* Status Dropdown Dark Theme */
+.status-dropdown-wrapper {
+    border-color: var(--dark-border) !important;
+}
+
+.status-dropdown-arrow {
+    background: var(--dark-bg-tertiary) !important;
+    border-color: var(--dark-border) !important;
+    color: var(--dark-text-secondary) !important;
+}
+
+/* List Groups */
+.list-group-item {
+    background-color: var(--dark-card) !important;
+    border: 1px solid var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.list-group-item:hover {
+    background-color: var(--dark-hover) !important;
+}
+
+.list-group-item.active {
+    background-color: var(--dark-primary) !important;
+    border-color: var(--dark-primary) !important;
+}
+
+/* Badges */
+.badge.bg-primary {
+    background-color: var(--dark-primary) !important;
+}
+
+.badge.bg-success {
+    background-color: var(--dark-success) !important;
+}
+
+.badge.bg-secondary {
+    background-color: var(--dark-text-secondary) !important;
+}
+
+.badge.bg-light {
+    background-color: var(--dark-bg-tertiary) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* Progress Bars */
+.progress {
+    background-color: var(--dark-bg-tertiary) !important;
+}
+
+.progress-bar.dhaniya-bg {
+    background-color: var(--dark-primary) !important;
+}
+
+/* Tables */
+.table {
+    color: var(--dark-text-primary) !important;
+    background-color: transparent !important;
+}
+
+.table td, .table th {
+    color: var(--dark-text-primary) !important;
+    background-color: transparent !important;
+    border-color: var(--dark-border) !important;
+}
+
+.table tbody tr td {
+    color: var(--dark-text-primary) !important;
+    background-color: transparent !important;
+}
+
+.table tbody tr:first-child td:first-child {
+    color: var(--dark-text-primary) !important;
+    background-color: transparent !important;
+    font-weight: 500 !important;
+}
+
+/* Remove any striped backgrounds */
+.table-striped tbody tr {
+    background-color: transparent !important;
+}
+
+/* Text Colors */
+.text-muted {
+    color: var(--dark-text-muted) !important;
+}
+
+.text-secondary {
+    color: var(--dark-text-secondary) !important;
+}
+
+/* Borders */
+.border,
+.border-top,
+.border-bottom,
+.border-start,
+.border-end {
+    border-color: var(--dark-border) !important;
+}
+
+/* Alerts */
+.alert {
+    border: 1px solid var(--dark-border) !important;
+}
+
+.alert-success {
+    background-color: rgba(35, 134, 54, 0.15) !important;
+    border-color: var(--dark-success) !important;
+    color: var(--dark-accent) !important;
+}
+
+.alert-danger {
+    background-color: rgba(248, 81, 73, 0.15) !important;
+    border-color: var(--dark-danger) !important;
+    color: #ff7b72 !important;
+}
+
+.alert-warning {
+    background-color: rgba(210, 153, 34, 0.15) !important;
+    border-color: var(--dark-warning) !important;
+    color: #e3b341 !important;
+}
+
+.alert-info {
+    background-color: rgba(88, 166, 255, 0.15) !important;
+    border-color: var(--dark-info) !important;
+    color: var(--dark-info) !important;
+}
+
+/* Alert Close Button Dark Theme Fix */
+.alert .btn-close {
+    background-color: transparent !important;
+    opacity: 1 !important;
+}
+
+.alert .btn-close:before {
+    content: "✕" !important;
+    color: var(--dark-text-primary) !important;
+    font-size: 1rem !important;
+    font-weight: bold !important;
+}
+
+.alert-dismissible .btn-close {
+    color: var(--dark-text-primary) !important;
+    filter: none !important;
+}
+
+/* Modals */
+.modal-content {
+    background-color: var(--dark-card) !important;
+    border: 1px solid var(--dark-border) !important;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--dark-border) !important;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--dark-border) !important;
+}
+
+/* Landing Page Dark Mode */
+.dhaniya-landing {
+    background-color: var(--dark-bg-primary) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.dhaniya-landing .hero {
+    background: linear-gradient(135deg, var(--dark-bg-secondary) 0%, var(--dark-bg-tertiary) 100%) !important;
+}
+
+.dhaniya-landing .feature-card {
+    background-color: var(--dark-card) !important;
+    border: 1px solid var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.dhaniya-landing footer {
+    background-color: var(--dark-navbar) !important;
+    border-top: 1px solid var(--dark-border) !important;
+}
+
+/* Search Input */
+.input-group .form-control {
+    background-color: var(--dark-input) !important;
+    border-color: var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.input-group-text {
+    background-color: var(--dark-bg-tertiary) !important;
+    border-color: var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* Search Input Dark Theme */
+.navbar .form-control {
+    background-color: var(--dark-input) !important;
+    color: var(--dark-text-primary) !important;
+    border-color: var(--dark-border) !important;
+    border-left-color: var(--dark-accent) !important;
+}
+
+.navbar .form-control::placeholder {
+    color: var(--dark-text-muted) !important;
+}
+
+.navbar .form-control:focus {
+    background-color: var(--dark-bg-tertiary) !important;
+    border-color: var(--dark-accent) !important;
+    box-shadow: 0 0 0 0.2rem rgba(35, 134, 54, 0.25) !important;
+}
+
+/* Scrollbar Dark Theme */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--dark-text-muted);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-text-secondary);
+}
+
+/* Stats Numbers for Dashboard */
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--dark-accent) !important;
+}
+
+/* Card Hover Effects in Dark Mode */
+.card:hover,
+.dhaniya-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px var(--dark-shadow) !important;
+    border-color: var(--dark-accent) !important;
+}
+
+/* Footer Dark Mode */
+footer {
+    background-color: var(--dark-navbar) !important;
+    border-top: 1px solid var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* Ensure all backgrounds are properly themed */
+.bg-light {
+    background-color: var(--dark-bg-secondary) !important;
+}
+
+.bg-white {
+    background-color: var(--dark-card) !important;
+}
+
+/* Whiteboard specific dark mode */
+.dhaniya-card.card .card-header.dhaniya-bg {
+    background-color: var(--dark-primary) !important;
+}
+
+/* Fix any remaining green-to-yellow issues */
+.navbar.dhaniya-bg,
+.card-header.dhaniya-bg,
+.btn.dhaniya-bg,
+.progress-bar.dhaniya-bg {
+    background-color: var(--dark-primary) !important;
+}
+
+/* Form inputs dark mode enhancements */
+.form-control {
+    background-color: var(--dark-input) !important;
+    border: 1px solid var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.form-control:focus {
+    background-color: var(--dark-input) !important;
+    border-color: var(--dark-accent) !important;
+    box-shadow: 0 0 0 0.2rem rgba(63, 185, 80, 0.25) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.form-control::placeholder {
+    color: var(--dark-text-muted) !important;
+}
+
+.form-select {
+    background-color: var(--dark-input) !important;
+    border-color: var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.form-label {
+    color: var(--dark-text-primary) !important;
+}
+
+/* Landing page welcome card dark mode */
+.dhaniya-card .text-dark {
+    color: var(--dark-text-primary) !important;
+}
+
+/* All Card Content Fixes */
+.card-body h5, .card-body h4, .card-body h3,
+.card-header h5, .card-header h4, .card-header h3 {
+    color: var(--dark-text-primary) !important;
+}
+
+.card-body p, .card-body .card-text, .card-body small {
+    color: var(--dark-text-secondary) !important;
+}
+
+/* Ensure all project-related text is visible */
+.project-card .card-title,
+.project-item .project-title,
+.project-list-item .title {
+    color: var(--dark-text-primary) !important;
+}
+
+.project-card .card-text,
+.project-item .project-description,
+.project-list-item .description {
+    color: var(--dark-text-secondary) !important;
+}
+
+/* Status Dropdown Dark Theme Fixes */
+.status-dropdown-wrapper .status-dropdown {
+    background-color: var(--dark-input) !important;
+    color: var(--dark-text-primary) !important;
+    border: 1px solid var(--dark-border) !important;
+}
+
+.status-dropdown-wrapper .status-dropdown option {
+    background-color: var(--dark-bg-secondary) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.status-dropdown-arrow {
+    background: var(--dark-bg-tertiary) !important;
+    border-color: var(--dark-border) !important;
+    color: var(--dark-text-secondary) !important;
+}
+
+/* Profile Page Dark Theme Fixes */
+.profile-heading {
+    color: #ffffff !important;
+}
+
+/* Final Dark Theme Table Text Fixes */
+.dark-theme table, 
+.dark-theme .table {
+    color: #ffffff !important;
+}
+
+.dark-theme td, 
+.dark-theme th {
+    color: #ffffff !important;
+    border-color: #444 !important;
+}
+
+.dark-theme .card-title,
+.dark-theme .card-text {
+    color: #ffffff !important;
+}
+
+/* Ensure proper contrast for project cards */
+.dark-theme .dhaniya-card .card-title {
+    color: #ffffff !important;
+}
+
+.dark-theme .dhaniya-card .card-text {
+    color: #cccccc !important;
+}

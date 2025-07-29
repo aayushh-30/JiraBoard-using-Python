@@ -1,0 +1,108 @@
+/* ===============================
+   DHANIYA DARK THEME - CLEAN
+   =============================== */
+
+/* DARK THEME VARIABLES */
+:root {
+  /* Dark Colors */
+  --primary: #3fb950;
+  --accent: #58a6ff;
+  --success: #238636;
+  --success-hover: #2ea043;
+  
+  /* Dark Base */
+  --bg: #0d1117;
+  --text: #f0f6fc;
+  --card-bg: #21262d;
+  --border: #30363d;
+  --shadow: rgba(1, 4, 9, 0.8);
+  
+  /* Dark Navbar */
+  --navbar-bg: #161b22;
+  --navbar-text: #f0f6fc;
+  
+  /* Dark Sidebar */
+  --sidebar-bg: #161b22;
+  --sidebar-text: #8b949e;
+  --sidebar-hover: #21262d;
+  --sidebar-active: #238636;
+  
+  /* Dark Kanban */
+  --kanban-board-bg: #0d1117;
+  --kanban-column-bg: #161b22;
+  --kanban-column-drag-bg: #21262d;
+  --kanban-border: #30363d;
+  --kanban-header-bg: #238636;
+  --kanban-text: #f0f6fc;
+  --kanban-count-bg: rgba(255, 255, 255, 0.1);
+  --kanban-count-text: #8b949e;
+  --kanban-card-bg: #21262d;
+  --kanban-card-border: #30363d;
+  --kanban-card-text: #f0f6fc;
+}
+
+/* BASE OVERRIDES */
+body {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+/* COMPONENT OVERRIDES */
+.card {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.navbar, .dhaniya-bg {
+  background-color: var(--navbar-bg) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.sidebar, #sidebar-wrapper {
+  background-color: var(--sidebar-bg) !important;
+  color: var(--sidebar-text) !important;
+}
+
+.form-control {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.form-control:focus {
+  background-color: var(--card-bg) !important;
+  border-color: var(--primary) !important;
+  color: var(--text) !important;
+}
+
+.dropdown-menu {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border) !important;
+}
+
+.dropdown-item {
+  color: var(--text) !important;
+}
+
+.dropdown-item:hover {
+  background-color: var(--sidebar-hover) !important;
+}
+
+.table {
+  color: var(--text) !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td {
+  background-color: var(--sidebar-hover) !important;
+}
+
+.btn-outline-light {
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.btn-outline-light:hover {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}

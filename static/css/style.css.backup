@@ -1,0 +1,1842 @@
+/* static/css/style.css */
+:root {
+  /* Light Theme Variables */
+  --primary: #6c9a8b;
+  --accent: #a7c957;
+  --bg: #f2fbe0;
+  --text: #333;
+  --card-bg: #ffffff;
+  
+  /* Kanban Board Light Theme Variables */
+  --kanban-board-bg: #f5f6fa;
+  --kanban-column-bg: #e9f5f3;
+  --kanban-column-drag-bg: #f8f9ff;
+  --kanban-border: #e1e5e9;
+  --kanban-header-bg: #006d5b;
+  --kanban-text: #172b4d;
+  --kanban-count-bg: rgba(255, 255, 255, 0.2);
+  --kanban-count-text: white;
+  --kanban-card-bg: #ffffff;
+  --kanban-card-border: #dee2e6;
+  --kanban-card-text: #172b4d;
+}
+
+body {
+    background-color: #f0f4f0;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.btn-success {
+    background-color: #388e3c;
+    border: none;
+}
+
+.btn-success:hover {
+    background-color: #2e7d32;
+}
+
+.dhaniya-landing {
+  --primary: #6c9a8b;
+  --accent: #a7c957;
+  --bg: #f2fbe0;
+  --text: #333;
+  --card-bg: #ffffff;
+  
+  /* Kanban Board Variables */
+  --kanban-board-bg: #f5f6fa;
+  --kanban-column-bg: #ffffff;
+  --kanban-column-drag-bg: #f8f9ff;
+  --kanban-border: #e1e5e9;
+  --kanban-header-bg: #fafbfc;
+  --kanban-text: #172b4d;
+  --kanban-count-bg: #ddd;
+  --kanban-count-text: #666;
+}
+
+.dhaniya-landing body,
+.dhaniya-landing {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dhaniya-landing header {
+  background-color: var(--primary);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  align-items: center;
+}
+
+.dhaniya-landing .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.dhaniya-landing nav a {
+  color: white;
+  margin-left: 1rem;
+  text-decoration: none;
+}
+
+.dhaniya-landing .hero {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.dhaniya-landing .hero h1 {
+  font-size: 2.5rem;
+  color: var(--primary);
+}
+
+.dhaniya-landing .hero p {
+  font-size: 1.2rem;
+  margin: 1rem 0;
+}
+
+.dhaniya-landing .buttons button {
+  background-color: var(--accent);
+  border: none;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  margin: 0.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.dhaniya-landing .buttons button:hover {
+  background-color: #90b44b;
+}
+
+.dhaniya-landing .features {
+  display: flex;
+  justify-content: space-around;
+  padding: 2rem;
+  flex-wrap: wrap;
+}
+
+.dhaniya-landing .card {
+  background: var(--card-bg);
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1rem;
+  box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 30rem;
+  text-align: center;
+}
+
+.dhaniya-landing footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: var(--primary);
+  color: white;
+  margin-top: 2rem;
+}
+
+.dhaniya-bg {
+    background-color: #006d5b;
+}
+
+.dhaniya-card {
+    border: none;
+    background-color: #e9f5f3;
+    border-left: 0.3rem solid #006d5b;
+    border-radius: 1rem !important;
+    box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.card {
+    border-radius: 15px !important;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.card-body {
+    border-radius: 0 0 15px 15px !important;
+    padding: 1.5rem;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.list-group-item.active {
+    background-color: #006d5b;
+    border-color: #006d5b;
+}
+
+/* Enhanced Dhaniya Theme Extensions */
+
+/* Button animations and hover effects */
+.btn.dhaniya-bg:hover {
+    background-color: #004d40 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 109, 91, 0.3);
+    transition: all 0.3s ease;
+}
+
+/* Card hover effects - Enhanced */
+.dhaniya-card:hover {
+    transform: translateY(-50px);
+    box-shadow: 0 15px 30px rgba(0, 109, 91, 0.3);
+    transition: all 0.4s ease;
+}
+
+.card:hover {
+    transform: translateY(-50px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.4s ease;
+}
+
+/* Nature-inspired gradients */
+.dhaniya-gradient {
+    background: linear-gradient(135deg, #6c9a8b 0%, #a7c957 100%);
+}
+
+/* Custom scrollbar for Dhaniya theme */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f2fbe0;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #6c9a8b;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #006d5b;
+}
+
+/* Enhanced form styling */
+.form-control:focus {
+    border-color: #6c9a8b;
+    box-shadow: 0 0 0 0.2rem rgba(108, 154, 139, 0.25);
+}
+
+/* Success message styling */
+.alert-success {
+    background-color: #e9f5f3;
+    border-color: #6c9a8b;
+    color: #006d5b;
+}
+
+/* Enhanced navbar styling */
+.navbar.dhaniya-bg .navbar-brand {
+    background: linear-gradient(45deg, #a7c957, #6c9a8b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: none;
+}
+
+/* Leaf animation for loading states */
+@keyframes leafSway {
+    0%, 100% { transform: rotate(-2deg); }
+    50% { transform: rotate(2deg); }
+}
+
+.leaf-animation {
+    animation: leafSway 2s ease-in-out infinite;
+}
+
+/* Enhanced table styling */
+.table th {
+    background-color: #6c9a8b;
+    color: white;
+    border: none;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: #f2fbe0;
+}
+
+/* Custom badge styling */
+.badge.dhaniya-bg {
+    background-color: #006d5b !important;
+}
+
+.badge.dhaniya-accent {
+    background-color: #a7c957 !important;
+    color: #333;
+}
+
+/* Enhanced input group styling */
+.input-group-text {
+    background-color: #e9f5f3;
+    border-color: #6c9a8b;
+    color: #006d5b;
+}
+
+/* Sidebar Styling - Enhanced with Relative Units */
+#sidebar-wrapper {
+    position: fixed;
+    left: 0;
+    top: 4rem; /* Navbar height in rem */
+    width: 15vw; /* 15% of viewport width */
+    min-width: 180px; /* Minimum width for mobile */
+    max-width: 250px; /* Maximum width for large screens */
+    height: calc(100vh - 4rem);
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+    transform: translateX(0);
+    transition: transform 0.3s ease, width 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+    padding-top: 1.25rem;
+}
+
+#sidebar-wrapper.collapsed {
+    transform: translateX(-100%);
+}
+
+/* Main content adjustment when sidebar is visible */
+.content-wrapper {
+    margin-left: 15vw; /* Match sidebar width */
+    transition: margin-left 0.3s ease, padding-left 0.3s ease !important;
+    padding: 1.25rem;
+    width: calc(100vw - 15vw); /* Remaining viewport width */
+}
+
+.content-wrapper.sidebar-collapsed {
+    margin-left: 0 !important;
+    padding-left: 15px !important;
+    width: 100vw;
+}
+
+#sidebar-wrapper .list-group-item {
+    border: none;
+    padding: 15px 20px;
+    border-radius: 0;
+    background-color: transparent;
+    border-left: 3px solid transparent;
+}
+
+#sidebar-wrapper .list-group-item:hover {
+    background-color: #e9f5f3;
+    color: #006d5b;
+    border-left: 3px solid #a7c957;
+}
+
+#sidebar-wrapper .list-group-item.active {
+    background-color: #006d5b;
+    color: white;
+    border-left: 3px solid #a7c957;
+}
+
+#sidebar-wrapper .list-group-item i {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Fix Profile Dropdown Visibility */
+.navbar .dropdown-menu {
+    background-color: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.navbar .dropdown-item {
+    color: #495057 !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.95rem !important;
+}
+
+.navbar .dropdown-item:hover,
+.navbar .dropdown-item:focus {
+    background-color: #e9f5f3 !important;
+    color: #006d5b !important;
+}
+
+.navbar .dropdown-item-text {
+    color: #6c757d !important;
+    font-size: 0.85rem !important;
+}
+
+.navbar .dropdown-header {
+    color: #006d5b !important;
+    font-weight: 600 !important;
+}
+
+.navbar .dropdown-divider {
+    border-color: #dee2e6 !important;
+    margin: 0.5rem 0 !important;
+}
+
+/* Profile Dropdown Fix - Prevent Navbar Overflow */
+.navbar .dropdown-menu {
+    position: fixed !important;
+    top: 60px !important;
+    right: 10px !important;
+    z-index: 9999 !important;
+    transform: none !important;
+    margin: 0 !important;
+}
+
+.navbar .dropdown {
+    position: static !important;
+}
+
+/* Ensure navbar never overflows */
+.navbar-nav {
+    overflow: visible !important;
+    flex-wrap: nowrap !important;
+}
+
+/* Alert Message Positioning - Avoid Sidebar Overlap */
+.alert-container {
+    margin-left: 15vw;
+    transition: margin-left 0.3s ease;
+    padding: 0 1.25rem;
+}
+
+.alert-container.sidebar-collapsed {
+    margin-left: 0;
+}
+
+.alert {
+    border-radius: 8px !important;
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Global Overflow Prevention */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow-x: hidden !important;
+    width: 100%;
+    max-width: 100vw;
+}
+
+.container-fluid, .container {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.row {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+.col, .col-* {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    max-width: 100%;
+}
+
+/* Fixed Welcome Card Centering and Width */
+.welcome-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 5%;
+    width: 100%;
+}
+
+.welcome-card {
+    width: 90% !important;
+    max-width: 50rem;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* Landing Page Cards Layout Fix */
+.feature-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    padding: 2rem 5%;
+    width: 100%;
+}
+
+.feature-card {
+    flex: 1 1 calc(33.333% - 1rem);
+    min-width: 18rem;
+    max-width: 25rem;
+    height: 20rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-card .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.5rem;
+}
+
+/* Search Input with Left Border */
+.navbar .form-control {
+    border-left: 0.2rem solid #6c757d !important;
+    padding-left: 1rem;
+}
+
+/* Status Dropdown with Arrow Button */
+.status-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.status-dropdown {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: transparent;
+    padding-right: 3rem;
+    width: 100%;
+}
+
+.status-dropdown-arrow {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(108, 117, 125, 0.1);
+    border-left: 1px solid #dee2e6;
+    pointer-events: none;
+    border-radius: 0 0.375rem 0.375rem 0;
+}
+
+/* Dashboard and Projects Content Area */
+.content-wrapper {
+    overflow-x: hidden;
+    max-width: 100%;
+    padding: 1rem 2%;
+}
+
+.content-wrapper.with-sidebar {
+    margin-left: 15vw;
+    width: calc(85vw - 2%);
+    max-width: calc(85vw - 2%);
+}
+
+/* Card Grid Fixes */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    padding: 1rem;
+}
+
+.card-grid .card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.card-grid .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Responsive Typography */
+h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); }
+h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
+h3 { font-size: clamp(1.3rem, 2.5vw, 1.75rem); }
+h4 { font-size: clamp(1.1rem, 2vw, 1.5rem); }
+h5 { font-size: clamp(1rem, 1.5vw, 1.25rem); }
+p, .card-text { font-size: clamp(0.9rem, 1.2vw, 1.1rem); }
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .content-wrapper.with-sidebar {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .feature-card {
+        flex: 1 1 100%;
+        max-width: none;
+    }
+    
+    .welcome-card {
+        width: 95% !important;
+    }
+    
+    .card-grid {
+        grid-template-columns: 1fr;
+        padding: 0.5rem;
+    }
+}
+
+/* Dashboard Card Consistency */
+.dashboard-card-row {
+    display: flex;
+    align-items: stretch;
+}
+
+.dashboard-card-row .card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-card-row .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #006d5b;
+    line-height: 1;
+    margin: 10px 0;
+}
+
+[data-theme="dark"] .pagination .page-item.active .page-link {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: white !important;
+}
+
+[data-theme="dark"] .btn-outline-success {
+    color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+
+[data-theme="dark"] .btn-outline-success:hover {
+    background-color: var(--accent) !important;
+    color: #0d1117 !important;
+}
+
+[data-theme="dark"] .btn-outline-secondary {
+    color: #8b949e !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .btn-outline-secondary:hover {
+    background-color: var(--border-color) !important;
+    color: var(--text) !important;
+}
+
+[data-theme="dark"] .text-muted {
+    color: #8b949e !important;
+}
+
+[data-theme="dark"] .bg-light {
+    background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .border-end {
+    border-color: var(--border-color) !important;
+}
+
+/* Responsive enhancements */
+@media (max-width: 768px) {
+    .dhaniya-landing .card {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+    
+    .dhaniya-landing .hero h1 {
+        font-size: 2rem;
+    }
+}
+
+/* Dashboard Card Height Consistency and Typography */
+.dashboard-card-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    margin-bottom: 2rem;
+}
+
+.dashboard-card-row .col-md-4,
+.dashboard-card-row .col-md-3,
+.dashboard-card-row .col-md-8 {
+    display: flex;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-card-row .dhaniya-card,
+.dashboard-card-row .card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 220px;
+    width: 100%;
+}
+
+.dashboard-card-row .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    padding: 2rem 1.5rem;
+}
+
+.dashboard-card-row h5 {
+    font-size: 1.4rem !important;
+    font-weight: 600 !important;
+    color: #006d5b !important;
+    margin-bottom: 1rem !important;
+}
+
+.dashboard-card-row .stats-number {
+    font-size: 3.5rem !important;
+    font-weight: bold !important;
+    color: #006d5b !important;
+    line-height: 1 !important;
+    margin: 1rem 0 !important;
+}
+
+.dashboard-card-row .card-text,
+.dashboard-card-row small,
+.dashboard-card-row .text-muted {
+    font-size: 1rem !important;
+    color: #6c757d !important;
+    margin-top: 0.75rem !important;
+    line-height: 1.4 !important;
+}
+
+/* Enhanced card styling for better visual hierarchy */
+.dhaniya-card h5 {
+    margin-bottom: 15px;
+    color: #006d5b;
+    font-weight: 600;
+}
+
+.dhaniya-card .card-body p {
+    margin-bottom: 10px;
+    flex-grow: 1;
+}
+
+.dhaniya-card small {
+    margin-top: auto;
+}
+
+/* Stats numbers styling */
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #006d5b;
+    margin: 10px 0;
+}
+
+/* Better mobile responsiveness for dashboard */
+@media (max-width: 768px) {
+    .dashboard-card-row .col-md-4,
+    .dashboard-card-row .col-md-8 {
+        margin-bottom: 15px;
+    }
+    
+    .stats-number {
+        font-size: 2rem;
+    }
+}
+
+/* Form Input Fixes - Better Visibility */
+.form-control {
+    border: 2px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 1rem !important;
+    background-color: #ffffff !important;
+    color: #495057 !important;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+.form-control:focus {
+    border-color: #006d5b !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 109, 91, 0.25) !important;
+    background-color: #ffffff !important;
+    color: #495057 !important;
+}
+
+.form-control::placeholder {
+    color: #6c757d !important;
+    opacity: 0.8;
+}
+
+.form-select {
+    border: 2px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    padding: 0.75rem 1rem !important;
+    background-color: #ffffff !important;
+    color: #495057 !important;
+}
+
+.form-select:focus {
+    border-color: #006d5b !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 109, 91, 0.25) !important;
+}
+
+.form-label {
+    font-weight: 500 !important;
+    color: #495057 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Input Group Styling */
+.input-group .form-control {
+    border-right: none !important;
+}
+
+.input-group .btn {
+    border-left: none !important;
+    border: 2px solid #dee2e6 !important;
+    border-left: none !important;
+}
+
+/* Navbar Overflow Fix */
+.navbar {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+}
+
+.navbar .container-fluid {
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+    flex-wrap: nowrap !important;
+}
+
+.navbar .input-group {
+    max-width: 100% !important;
+    overflow: hidden !important;
+}
+
+/* Search Input Border Fix - COMPLETE WHITE BORDERS */
+.navbar .input-group .form-control {
+    border-right: none !important;
+    border: 2px solid #ffffff !important;
+    border-right: none !important;
+}
+
+.navbar .input-group .btn,
+.input-group .btn {
+    border: 2px solid #ffffff !important;
+    border-left: 2px solid #ffffff !important;
+}
+
+/* ALL Search bars everywhere - COMPLETE WHITE BORDERS */
+.form-control {
+    border: 2px solid #dee2e6 !important;
+}
+
+.input-group .btn {
+    border: 2px solid #dee2e6 !important;
+    border-left: 2px solid #dee2e6 !important;
+}
+
+/* Status Dropdown Arrow Sizing Fix - PROPER SIZE AND WHITE BORDERS */
+.status-dropdown-arrow {
+    width: 2.8rem !important;
+    height: calc(100% - 4px) !important;
+    border: 2px solid #ffffff !important;
+    border-left: 2px solid #ffffff !important;
+    background: #ffffff !important;
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.status-dropdown {
+    height: 38px !important;
+    padding-right: 3.5rem !important;
+    border: 2px solid #dee2e6 !important;
+}
+
+.status-dropdown-wrapper {
+    height: 38px !important;
+    border: 2px solid #dee2e6 !important;
+    border-radius: 0.375rem !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+/* Login and Register Page Centering */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 2rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 25rem;
+    margin: 0 auto;
+}
+
+.login-container, .register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 2rem 5%;
+}
+
+.login-card, .register-card {
+    width: 100%;
+    max-width: 25rem;
+    margin: 0 auto;
+}
+
+/* Profile Page Fixes */
+.profile-heading {
+    color: #ffffff !important;
+}
+
+.role-badge {
+    font-size: 0.9rem !important;
+    padding: 0.5rem 0.8rem !important;
+    line-height: 1.4 !important;
+    height: auto !important;
+    min-height: 2rem !important;
+}
+
+.status-badge {
+    font-size: 1.1rem !important;
+    padding: 0.6rem 1.2rem !important;
+    border-radius: 1rem !important;
+}
+
+.status-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-text {
+    font-size: 1.2rem !important;
+    font-weight: 500 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Profile Page Complete Fixes */
+.profile-heading-white {
+    color: #ffffff !important;
+}
+
+.role-badge-large {
+    font-size: 1.1rem !important;
+    padding: 0.7rem 1rem !important;
+    line-height: 1.5 !important;
+    height: auto !important;
+    min-height: 2.5rem !important;
+    border-radius: 0.5rem !important;
+}
+
+.status-badge-large {
+    font-size: 1.3rem !important;
+    padding: 0.8rem 1.5rem !important;
+    border-radius: 1.2rem !important;
+}
+
+.status-indicator-centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 3rem;
+}
+
+.profile-text-large {
+    font-size: 1.4rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.8rem !important;
+}
+
+/* Dashboard Welcome Card Full Width */
+.dashboard-welcome-card {
+    width: 100% !important;
+}
+
+/* Landing Page Welcome Card Full Width */
+.welcome-card {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+.welcome-section {
+    width: 100% !important;
+    padding: 2rem 0 !important;
+    margin: 0 !important;
+}
+
+/* Sidebar Toggle Fix for Profile */
+#sidebar-toggle {
+    /* Remove all positioning - it should stay in navbar */
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    z-index: auto !important;
+    display: inline-block !important;
+}
+
+/* Profile Page Sidebar Toggle Fix */
+#sidebar-toggle {
+    /* Remove conflicting positioning */
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    z-index: auto !important;
+    display: inline-block !important;
+}
+
+/* Fix Card Heights and Remove Scroll Bars */
+.dhaniya-card.card {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+.card-body {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+}
+
+.h-100 {
+    height: auto !important;
+    min-height: 400px !important;
+}
+
+/* Equal height cards in profile */
+.profile-card-row {
+    display: flex !important;
+    align-items: stretch !important;
+}
+
+.profile-card-row .col-md-4 {
+    display: flex !important;
+}
+
+.profile-card-row .dhaniya-card {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Prevent double scrollbar in profile */
+html {
+    overflow-y: scroll !important;
+}
+
+body {
+    overflow-y: auto !important;
+}
+
+/* Hide original scrollbar */
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+/* Fix for specific elements to always show scrollbar */
+.sidebar,
+.navbar,
+.content-wrapper {
+    overflow-y: auto !important;
+    padding-right: 15px !important;
+}
+
+/* Prevent content shift when scrollbar appears */
+body {
+    padding-right: 15px !important;
+}
+
+/* Custom scrollbar for specific elements */
+.sidebar::-webkit-scrollbar,
+.navbar::-webkit-scrollbar,
+.content-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.navbar::-webkit-scrollbar-thumb,
+.content-wrapper::-webkit-scrollbar-thumb {
+    background: #6c9a8b;
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.navbar::-webkit-scrollbar-thumb:hover,
+.content-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #004d40;
+}
+
+/* Fix for dropdowns in the navbar */
+.navbar .dropdown-menu {
+    z-index: 1050 !important;
+}
+
+/* Ensure buttons in dropdowns are full width */
+.navbar .dropdown-menu .dropdown-item {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Fix for active state in sidebar */
+#sidebar-wrapper .list-group-item.active {
+    background-color: #004d40 !important;
+    color: white !important;
+    border-left: 3px solid #a7c957 !important;
+}
+
+/* Fix for hover state in sidebar */
+#sidebar-wrapper .list-group-item:hover {
+    background-color: #e9f5f3 !important;
+    color: #006d5b !important;
+    border-left: 3px solid #a7c957 !important;
+}
+
+/* Remove all fixed positioning for sidebar toggle */
+
+/* Fix for content padding when sidebar is collapsed */
+.content-wrapper {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.content-wrapper.sidebar-collapsed {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* Fix for card padding and margin */
+.card {
+    margin: 1rem 0;
+    padding: 1.5rem;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+/* Fix for button group alignment */
+.btn-group {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-group .btn {
+    flex: 1 1 auto;
+    margin: 0.5rem;
+}
+
+/* Fix for form element width */
+.form-control,
+.form-select {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Fix for alert positioning */
+.alert-container {
+    position: relative;
+    z-index: 1050;
+}
+
+.alert {
+    margin-bottom: 1rem;
+}
+
+/* Fix for modal dialog */
+.modal-dialog {
+    max-width: 90vw;
+    width: auto;
+}
+
+.modal-content {
+    border-radius: 0.5rem;
+}
+
+.modal-header,
+.modal-footer {
+    border: none;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* Fix for tooltip and popover */
+.tooltip,
+.popover {
+    z-index: 1050;
+}
+
+/* Fix for spinner size */
+.spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+/* Fix for badge alignment */
+.badge {
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* Fix for list group item padding */
+.list-group-item {
+    padding: 0.75rem 1.25rem;
+}
+
+/* Fix for table layout */
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 0.75rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+}
+
+.table thead th {
+    background-color: #6c9a8b;
+    color: white;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f2fbe0;
+}
+
+/* Fix for pagination */
+.pagination {
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.pagination .page-item {
+    margin: 0 0.25rem;
+}
+
+.pagination .page-link {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+}
+
+/* Fix for custom select */
+.custom-select {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Fix for input group */
+.input-group {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Fix for status dropdown */
+.status-dropdown {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Fix for sidebar width on collapse */
+#sidebar-wrapper {
+    width: 250px;
+}
+
+#sidebar-wrapper.collapsed {
+    width: 80px;
+}
+
+/* Remove conflicting positioning */
+
+.content-wrapper {
+    margin-left: 250px;
+}
+
+.content-wrapper.sidebar-collapsed {
+    margin-left: 80px;
+}
+
+/* Fix for profile page layout */
+.profile-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.profile-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.profile-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for dashboard layout */
+.dashboard-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.dashboard-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.dashboard-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for project page layout */
+.project-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.project-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.project-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for report page layout */
+.report-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.report-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.report-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for settings page layout */
+.settings-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.settings-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.settings-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for user management page layout */
+.user-management-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.user-management-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.user-management-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for role management page layout */
+.role-management-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.role-management-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.role-management-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for audit log page layout */
+.audit-log-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.audit-log-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.audit-log-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for API documentation page layout */
+.api-docs-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.api-docs-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.api-docs-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for feedback page layout */
+.feedback-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.feedback-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.feedback-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for help center page layout */
+.help-center-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.help-center-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.help-center-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for knowledge base page layout */
+.knowledge-base-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.knowledge-base-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.knowledge-base-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for custom page layout */
+.custom-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.custom-page .sidebar {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.custom-page .content {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Fix for RTL layout */
+.rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+.rtl .navbar {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.rtl .sidebar {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.rtl .content-wrapper {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.rtl .form-control,
+.rtl .form-select {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.rtl .input-group {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.rtl .status-dropdown {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.rtl .btn {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.rtl .badge {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.rtl .table {
+    width: 100%;
+    margin-bottom: 1rem;
+    border-collapse: collapse;
+}
+
+.rtl .table th {
+    text-align: right;
+}
+
+/* Fix sidebar wrapper for profile page */
+#sidebar-wrapper {
+    transition: margin-left 0.3s ease !important;
+    position: fixed !important;
+    top: 80px !important;
+    left: 0 !important;
+    width: 250px !important;
+    height: calc(100vh - 80px) !important;
+    z-index: 1030 !important;
+}
+
+#sidebar-wrapper.collapsed {
+    margin-left: -250px !important;
+}
+
+.content-wrapper.sidebar-collapsed {
+    margin-left: 0 !important;
+}
+
+/* Fix Navbar Positioning - Normal Height but Sticky */
+.navbar {
+    position: fixed !important;
+    top: 0 !important;
+    width: 100% !important;
+    z-index: 1050 !important;
+}
+
+body {
+    padding-top: 56px !important;
+}
+
+#sidebar-wrapper {
+    top: 56px !important;
+    height: calc(100vh - 56px) !important;
+}
+
+/* Remove final conflicting positioning */
+
+.content-wrapper {
+    margin-top: 0 !important;
+}
+
+/* Enhanced Navbar Height Control */
+.navbar {
+    min-height: 60px !important;
+    padding: 0.5rem 1rem !important;
+}
+
+.navbar .navbar-nav {
+    align-items: center;
+}
+
+.navbar .nav-link {
+    padding: 0.5rem 1rem !important;
+}
+
+/* Enhanced Dropdown Submenu Styling */
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu .dropdown-menu {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-top: 0;
+    margin-left: 0;
+    z-index: 1055;
+    display: none;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-submenu:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-submenu .dropdown-toggle::after {
+    display: inline-block;
+    margin-left: auto;
+    vertical-align: middle;
+    content: "";
+    border-left: 0.3em solid;
+    border-right: 0;
+    border-top: 0.3em solid transparent;
+    border-bottom: 0.3em solid transparent;
+    transform: rotate(-90deg);
+}
+
+.dropdown-submenu .dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Ensure proper spacing in dropdown */
+.dropdown-menu .dropdown-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: rgba(0, 109, 91, 0.1);
+    color: var(--dhaniya-primary);
+}
+
+/* Fix profile button styling */
+.btn-outline-light {
+    border: none !important;
+    background: none !important;
+    padding: 0.5rem 1rem !important;
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 5px;
+}
+
+/* Modern Frontend Enhancements */
+
+/* Toast Container */
+.toast-container {
+    z-index: 9999 !important;
+}
+
+.toast {
+    transition: all 0.3s ease !important;
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.toast.show {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+}
+
+/* v0.dev style toast notifications */
+.toast-notification {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.toast-success {
+    border-left-color: #10B981 !important;
+}
+
+.toast-error {
+    border-left-color: #EF4444 !important;
+}
+
+.toast-warning {
+    border-left-color: #F59E0B !important;
+}
+
+.toast-info {
+    border-left-color: #3B82F6 !important;
+}
+
+/* Dark mode toast styling */
+body.dark-mode .toast-notification {
+    background: #1F2937 !important;
+    color: #F9FAFB !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode .toast-notification button {
+    color: #9CA3AF !important;
+}
+
+body.dark-mode .toast-notification button:hover {
+    color: #D1D5DB !important;
+}
+
+/* Smooth Transitions for Dark Mode (300ms) */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+.sidebar, .content-wrapper {
+    transition: all 0.3s ease !important;
+}
+
+/* Sidebar Collapse Animation */
+#sidebar-wrapper {
+    transition: transform 0.3s ease, width 0.3s ease !important;
+}
+
+#sidebar-wrapper.collapsed {
+    transform: translateX(-100%);
+}
+
+.content-wrapper {
+    transition: margin-left 0.3s ease, padding-left 0.3s ease !important;
+}
+
+.content-wrapper.sidebar-collapsed {
+    margin-left: 0 !important;
+    padding-left: 15px !important;
+}
+
+/* Enhanced Dropdown Z-Index Management */
+.dropdown-menu {
+    z-index: 1050;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    padding: 0.5rem 0;
+}
+
+.dropdown-submenu .dropdown-menu {
+    z-index: 1055;
+    top: 0;
+    left: 100%;
+    margin-top: -6px;
+    transition: all 0.15s ease !important;
+    transform: translateY(-10px);
+    opacity: 0;
+}
+
+.dropdown-submenu .dropdown-menu.show {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+}
+
+/* Role Switching Dropdown Styling */
+.dropdown-submenu:hover .dropdown-menu {
+    display: block !important;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    margin: 0 0.25rem;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(2px);
+}
+
+/* Enhanced Card Animations */
+.card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+/* Modern Button Styling */
+.btn {
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
